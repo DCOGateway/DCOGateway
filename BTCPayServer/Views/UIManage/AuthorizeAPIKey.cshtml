@@ -41,7 +41,7 @@
     <input type="hidden" asp-for="ApplicationIdentifier" value="@Model.ApplicationIdentifier"/>
     <header class="text-center">
         <h1>@ViewData["Title"]</h1>
-        <p class="lead text-secondary mt-3">@(displayName ?? "An application") is requesting access to your BTCPay Server account.</p>
+        <p class="lead text-secondary mt-3">@(displayName ?? "An application") is requesting access to your DCO Gateway account.</p>
     </header>
     <div asp-validation-summary="All"></div>
     
@@ -89,7 +89,7 @@
         {
             <p>
                 There are no associated permissions to the API key being requested by the application.
-                The application cannot do anything with your BTCPay Server account other than validating your account exists.
+                The application cannot do anything with your DCO Gateway account other than validating your account exists.
             </p>
         }
         else

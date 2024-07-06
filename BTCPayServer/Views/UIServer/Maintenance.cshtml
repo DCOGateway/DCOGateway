@@ -1,4 +1,4 @@
-﻿@model BTCPayServer.Models.ServerViewModels.MaintenanceViewModel
+@model BTCPayServer.Models.ServerViewModels.MaintenanceViewModel
 @{
     ViewData.SetActivePage(ServerNavPages.Maintenance, "Maintenance");
 }
@@ -17,7 +17,7 @@
             <button name="command" type="submit" class="btn btn-secondary" value="changedomain" title="Change domain" disabled="@(Model.CanUseSSH ? null : "disabled")">Change Domain</button>
 
             <h4 class="mt-5 mb-2">Restart</h4>
-            <p>Restart BTCPay Server and related services.</p>
+            <p>Restart DCO Gateway and related services.</p>
             <div class="form-group">
                 <div class="input-group">
                     <button name="command" type="submit" class="btn btn-secondary" value="restart" disabled="@(Model.CanUseSSH ? null : "disabled")">Restart</button>
@@ -33,7 +33,7 @@
             </div>
 
             <h4 class="mt-5 mb-2">Update</h4>
-            <p>Update to the latest version of BTCPay Server.</p>
+            <p>Update to the latest version of DCO Gateway.</p>
             <div class="form-group">
                 <div class="input-group">
                     <button name="command" type="submit" class="btn btn-primary" value="update" disabled="@(Model.CanUseSSH ? null : "disabled")">Update</button>

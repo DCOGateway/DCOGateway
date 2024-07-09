@@ -289,7 +289,7 @@ namespace BTCPayServer.Controllers
                     StringBuilder errors = new StringBuilder();
                     if (!store.GetSupportedPaymentMethods(_NetworkProvider).Any())
                         errors.AppendLine(
-                            "Warning: No wallet has been linked to your BTCPay Store. See the following link for more information on how to connect your store and wallet. (https://docs.btcpayserver.org/WalletSetup/)");
+                            "Warning: No wallet has been linked to your BTCPay Store. See the following link for more information on how to connect your store and wallet. (https://docs.dcogateway.org/WalletSetup/)");
                     else
                         errors.AppendLine("Warning: You have payment methods configured but none of them match any of the requested payment methods or the rate is not available. See logs below:");
                     foreach (var error in logs.ToList())

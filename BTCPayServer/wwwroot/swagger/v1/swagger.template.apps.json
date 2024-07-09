@@ -667,7 +667,7 @@
                                     {
                                         "description": "this is an amazing perk",
                                         "id": "test test",
-                                        "image": "https://mainnet.demo.btcpayserver.org/img/errorpages/404_nicolas.jpg",
+                                        "image": "https://mainnet.demo.dcogateway.org/img/errorpages/404_nicolas.jpg",
                                         "price": {
                                             "type": 1,
                                             "formatted": "$69.42",

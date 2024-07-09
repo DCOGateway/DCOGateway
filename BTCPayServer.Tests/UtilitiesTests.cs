@@ -576,7 +576,7 @@ retry:
         {
             JObject obj = new JObject
             {
-                { "NOTICE_WARN", "THIS CODE HAS BEEN AUTOMATICALLY GENERATED FROM TRANSIFEX, IF YOU WISH TO HELP TRANSLATION COME ON THE SLACK https://chat.btcpayserver.org/ TO REQUEST PERMISSION TO https://www.transifex.com/btcpayserver/btcpayserver/" },
+                { "NOTICE_WARN", "THIS CODE HAS BEEN AUTOMATICALLY GENERATED FROM TRANSIFEX, IF YOU WISH TO HELP TRANSLATION COME ON THE SLACK https://chat.dcogateway.org/ TO REQUEST PERMISSION TO https://www.transifex.com/btcpayserver/btcpayserver/" },
                 { "code", Lang },
                 { "currentLanguage", Words["currentLanguage"] }
             };

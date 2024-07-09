@@ -83,7 +83,7 @@ namespace BTCPayServer.Services
         public override string ToString()
         {
             StringBuilder txt = new StringBuilder();
-            txt.Append(CultureInfo.InvariantCulture, $"© BTCPay Server v{Version}");
+            txt.Append(CultureInfo.InvariantCulture, $"© DCO Gateway v{Version}");
             if (Commit != null)
                 txt.Append($"+{Commit}");
             if (AltcoinsVersion)

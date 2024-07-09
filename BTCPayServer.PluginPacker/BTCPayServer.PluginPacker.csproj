@@ -6,9 +6,9 @@
       <Version>1.0.0.0</Version>
       <PackAsTool>true</PackAsTool>
       <ToolCommandName>btcpay-plugin</ToolCommandName>
-      <Company>BTCPay Server</Company>
-      <Copyright>Copyright © BTCPay Server 2020</Copyright>
-      <Description>A dotnet tool for packaging BTCPay Server plugins</Description>
+      <Company>DCO Gateway</Company>
+      <Copyright>Copyright © DCO Gateway 2020</Copyright>
+      <Description>A dotnet tool for packaging DCO Gateway plugins</Description>
       <PackageIcon>icon.png</PackageIcon>
       <PackageTags>btcpay,btcpayserver</PackageTags>
       <PackageProjectUrl>https://github.com/btcpayserver/btcpayserver/tree/master/BTCPayServer.PluginPacker</PackageProjectUrl>

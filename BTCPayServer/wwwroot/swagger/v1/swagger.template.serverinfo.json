@@ -92,7 +92,7 @@
                 "properties": {
                     "version": {
                         "type": "string",
-                        "description": "BTCPay Server version"
+                        "description": "DCO Gateway version"
                     },
                     "onion": {
                         "type": "string",

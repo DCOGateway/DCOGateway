@@ -551,7 +551,7 @@
                         "properties": {
                             "secret": {
                                 "type": "string",
-                                "description": "Must be used by the callback receiver to ensure the delivery comes from BTCPay Server. BTCPay Server includes the `BTCPay-Sig` HTTP header, whose format is `sha256=HMAC256(UTF8(webhook's secret), body)`. The pattern to authenticate the webhook is similar to [how to secure webhooks in Github](https://docs.github.com/webhooks/securing/). If left out, null, or empty, the secret will be auto-generated.",
+                                "description": "Must be used by the callback receiver to ensure the delivery comes from DCO Gateway. DCO Gateway includes the `BTCPay-Sig` HTTP header, whose format is `sha256=HMAC256(UTF8(webhook's secret), body)`. The pattern to authenticate the webhook is similar to [how to secure webhooks in Github](https://docs.github.com/webhooks/securing/). If left out, null, or empty, the secret will be auto-generated.",
                                 "nullable": true
                             }
                         }
@@ -568,7 +568,7 @@
                         "properties": {
                             "secret": {
                                 "type": "string",
-                                "description": "Must be used by the callback receiver to ensure the delivery comes from BTCPay Server. BTCPay Server includes the `BTCPay-Sig` HTTP header, whose format is `sha256=HMAC256(UTF8(webhook's secret), body)`. The pattern to authenticate the webhook is similar to [how to secure webhooks in Github](https://docs.github.com/webhooks/securing/). Value of the auto-generated or custom secret.",
+                                "description": "Must be used by the callback receiver to ensure the delivery comes from DCO Gateway. DCO Gateway includes the `BTCPay-Sig` HTTP header, whose format is `sha256=HMAC256(UTF8(webhook's secret), body)`. The pattern to authenticate the webhook is similar to [how to secure webhooks in Github](https://docs.github.com/webhooks/securing/). Value of the auto-generated or custom secret.",
                                 "nullable": true
                             }
                         }
@@ -585,7 +585,7 @@
                         "properties": {
                             "secret": {
                                 "type": "string",
-                                "description": "Must be used by the callback receiver to ensure the delivery comes from BTCPay Server. BTCPay Server includes the `BTCPay-Sig` HTTP header, whose format is `sha256=HMAC256(UTF8(webhook's secret), body)`. The pattern to authenticate the webhook is similar to [how to secure webhooks in Github](https://docs.github.com/webhooks/securing/). If left out, null, or empty, the secret will not be changed.",
+                                "description": "Must be used by the callback receiver to ensure the delivery comes from DCO Gateway. DCO Gateway includes the `BTCPay-Sig` HTTP header, whose format is `sha256=HMAC256(UTF8(webhook's secret), body)`. The pattern to authenticate the webhook is similar to [how to secure webhooks in Github](https://docs.github.com/webhooks/securing/). If left out, null, or empty, the secret will not be changed.",
                                 "nullable": true
                             }
                         }
@@ -604,13 +604,13 @@
                     },
                     "automaticRedelivery": {
                         "type": "boolean",
-                        "description": "If true, BTCPay Server will retry to redeliver any failed delivery after 10 seconds, 1 minutes and up to 6 times after 10 minutes.",
+                        "description": "If true, DCO Gateway will retry to redeliver any failed delivery after 10 seconds, 1 minutes and up to 6 times after 10 minutes.",
                         "nullable": false,
                         "default": true
                     },
                     "url": {
                         "type": "string",
-                        "description": "The endpoint where BTCPay Server will make the POST request with the webhook body",
+                        "description": "The endpoint where DCO Gateway will make the POST request with the webhook body",
                         "nullable": false
                     },
                     "authorizedEvents": {

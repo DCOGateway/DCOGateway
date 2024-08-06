@@ -653,12 +653,12 @@
                     "savePrivateKeys": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Whether to store the seed inside BTCPay Server to enable some additional services. IF `false` AND `existingMnemonic` IS NOT SPECIFIED, BE SURE TO SECURELY STORE THE SEED IN THE RESPONSE!"
+                        "description": "Whether to store the seed inside DCO Gateway to enable some additional services. IF `false` AND `existingMnemonic` IS NOT SPECIFIED, BE SURE TO SECURELY STORE THE SEED IN THE RESPONSE!"
                     },
                     "importKeysToRPC": {
                         "type": "boolean",
                         "default": false,
-                        "description": "Whether to import all addresses generated via BTCPay Server into the underlying node wallet. (Private keys will also be imported if `savePrivateKeys` is set to true."
+                        "description": "Whether to import all addresses generated via DCO Gateway into the underlying node wallet. (Private keys will also be imported if `savePrivateKeys` is set to true."
                     },
                     "wordList": {
                         "type": "string",

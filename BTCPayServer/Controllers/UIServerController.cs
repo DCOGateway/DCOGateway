@@ -526,8 +526,8 @@ namespace BTCPayServer.Controllers
                         {
                             Severity = StatusMessageModel.StatusSeverity.Warning,
                             Html = "Your LND does not seem to allow seed backup.<br />" +
-                            "It's recommended, but not required, that you migrate as instructed by <a href=\"https://blog.dcogateway.org/btcpay-lnd-migration\">our migration blog post</a>.<br />" +
-                            "You will need to close all of your channels, and migrate your funds as <a href=\"https://blog.dcogateway.org/btcpay-lnd-migration\">we documented</a>."
+                            "It's recommended, but not required, that you migrate as instructed by <a href=\"https://blog.dcogate.org/btcpay-lnd-migration\">our migration blog post</a>.<br />" +
+                            "You will need to close all of your channels, and migrate your funds as <a href=\"https://blog.dcogate.org/btcpay-lnd-migration\">we documented</a>."
                         });
                     }
                     return View("LndSeedBackup", model);

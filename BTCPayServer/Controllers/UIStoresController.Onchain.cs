@@ -612,7 +612,7 @@ namespace BTCPayServer.Controllers
                         TempData.SetStatusMessageModel(new StatusMessageModel()
                         {
                             Severity = StatusMessageModel.StatusSeverity.Warning,
-                            Html = $"The payment settings were updated successfully. However, PayJoin will not work for {string.Join(", ", problematicPayjoinEnabledMethods)} until you configure them to be a <a href='https://docs.dcogateway.org/HotWallet/' class='alert-link' target='_blank'>hot wallet</a>."
+                            Html = $"The payment settings were updated successfully. However, PayJoin will not work for {string.Join(", ", problematicPayjoinEnabledMethods)} until you configure them to be a <a href='https://docs.dcogate.org/HotWallet/' class='alert-link' target='_blank'>hot wallet</a>."
                         });
                     }
                 }

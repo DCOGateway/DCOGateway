@@ -672,7 +672,7 @@ We introduce another flag, `--deprecated`, which allows you to start with SQLite
 
 Bear markets are for building: This version brings custom checkout forms, store branding options, a redesigned Point of Sale keypad view, new notification icons and address labeling.
 
-Read more information in [v1.8.0 blog's post](https://blog.dcogateway.org/btcpay-server-1-8-0/).
+Read more information in [v1.8.0 blog's post](https://blog.dcogate.org/btcpay-server-1-8-0/).
 
 ### New feature
 
@@ -1482,7 +1482,7 @@ BTCPay Server started in August 2017 and meanwhile has been evolving incremental
 
 It was finally time to cleanup the UI/UX and technical debt we accumulated over the years.
 
-We enumerate here a lot of new features and bug fixes, but we do not enumerate the UI/UX changes, we dedicated a separate [blog post for this topic](https://blog.dcogateway.org/btcpay-server-1-4-0/).
+We enumerate here a lot of new features and bug fixes, but we do not enumerate the UI/UX changes, we dedicated a separate [blog post for this topic](https://blog.dcogate.org/btcpay-server-1-4-0/).
 
 The heavy lifting of this work has been mainly brought to you thanks to the collaboration of @dstrukt and @dennisreimann.
 We thank also all the testers we brought us feedback, and all of you who participated in the weekly design meetings.
@@ -2203,7 +2203,7 @@ It turns out this is not compatible with every wallets.
 * New labels in the wallet for payment requests, apps, and improvement of the payout label @Kukks
 * Allows entry in wallet send via fiat #1891 @Kukks
 * Allows partial invoice refund #1882 @Kukks
-* In the Request API key flow, let the user be redirected to the original website #1800 @Kukks @dennisreimann ([more info](https://docs.dcogateway.org/API/Greenfield/v1/#tag/Authorization))
+* In the Request API key flow, let the user be redirected to the original website #1800 @Kukks @dennisreimann ([more info](https://docs.dcogate.org/API/Greenfield/v1/#tag/Authorization))
 * Invoice logs now show their severity #1681 @Kukks (see https://i.imgur.com/eyMO9M3.png)
 * Add store sort (#1861) @bolatovumar
 
@@ -2254,7 +2254,7 @@ It turns out this is not compatible with every wallets.
 ## 1.0.5.4:
 
 ### New features and improvements
-* BTCPayServer has now two different build Bitcoin-Only and Altcoins. See more [in our blog post](https://blog.dcogateway.org/btcpay-server-1-0-5-4) (@xpayserver)
+* BTCPayServer has now two different build Bitcoin-Only and Altcoins. See more [in our blog post](https://blog.dcogate.org/btcpay-server-1-0-5-4) (@xpayserver)
 * Wallet UI improvement #1763 @dennisreimann
 * Improve pull payment view #1764 @dennisreimann
 * Login/Register view UI improvements #1752 @dennisreimann
@@ -2292,7 +2292,7 @@ Those are low risk injection vulnerabilities.
 
 ### Altcoins
 
-* BTCPay Server build is Bitcoin Only by default. If you are developer and wants to work on the altcoins build, please read [the documentation](https://docs.dcogateway.org/LocalDevelopment/).
+* BTCPay Server build is Bitcoin Only by default. If you are developer and wants to work on the altcoins build, please read [the documentation](https://docs.dcogate.org/LocalDevelopment/).
 * Show sync progress for monero and show amount of monero payment #1729 @xpayserver
 
 ## 1.0.5.3:
@@ -2448,7 +2448,7 @@ Those are low risk injection vulnerabilities.
 * In dark theme, the pay button was rendering BTCPAY text in black. (@dennisreimann #1517)
 
 ### Miscalleneous
-* Refactor CSS to be in line with [the new design system](https://design.dcogateway.org/views/bootstrap/) (@dennisreimann)
+* Refactor CSS to be in line with [the new design system](https://design.dcogate.org/views/bootstrap/) (@dennisreimann)
 * Tests utilities: Fix docker-lightning-cli scripts
 * Improve static asset caching (@dennisreimann)
 * New invoice checkout languages added:**
@@ -2482,7 +2482,7 @@ Those are low risk injection vulnerabilities.
 
 ## 1.0.4.0
 
-Since this release is substantial, we invite your to read our [blog post](https://blog.dcogateway.org/btcpay-server-1-0-4-0/) as well.
+Since this release is substantial, we invite your to read our [blog post](https://blog.dcogate.org/btcpay-server-1-0-4-0/) as well.
 
 ### Bug fixes
 * Better RBF and Double spend handling

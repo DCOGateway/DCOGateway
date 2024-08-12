@@ -44,7 +44,7 @@
     // https://web.dev/async-clipboard/#permissions-policy-integration
     iframe.setAttribute('allow', 'clipboard-read; clipboard-write')
 
-    var origin = 'http://chat.dcogateway.org join us there, and initialize this with your origin url through setApiUrlPrefix';
+    var origin = 'http://chat.dcogate.org join us there, and initialize this with your origin url through setApiUrlPrefix';
     var scriptMatch = thisScript.match(scriptSrcRegex)
     if (scriptMatch) {
         // We can't just take the domain as btcpay can run under a sub path with RootPath

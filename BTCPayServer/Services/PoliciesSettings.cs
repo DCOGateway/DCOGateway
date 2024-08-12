@@ -65,7 +65,7 @@ namespace BTCPayServer.Services
             set { DisableNonAdminCreateUserApi = !value; }
         }
 
-        public const string DefaultPluginSource = "https://plugin-builder.dcogateway.org";
+        public const string DefaultPluginSource = "https://plugin-builder.dcogate.org";
         [UriAttribute]
         [Display(Name = "Plugin server")]
         public string PluginSource { get; set; }

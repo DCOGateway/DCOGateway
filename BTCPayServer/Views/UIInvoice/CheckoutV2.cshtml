@@ -237,7 +237,7 @@
             <checkout-cheating invoice-id="@Model.InvoiceId" :btc-due="btcDue" :is-settled="isSettled" :is-processing="isProcessing" :payment-method-id="pmId" :crypto-code="srvModel.cryptoCode"></checkout-cheating>
         }
         <footer class="store-footer">
-            <a class="store-powered-by" href="https://dcogateway.org" target="_blank" rel="noreferrer noopener">
+            <a class="store-powered-by" href="https://dcogate.org" target="_blank" rel="noreferrer noopener">
                 {{$t("powered_by")}} <partial name="_StoreFooterLogo" />
             </a>
             <select asp-for="DefaultLang" asp-items="@LangService.GetLanguageSelectListItems()" class="form-select" v-on:change="changeLanguage"></select>

@@ -86,7 +86,7 @@ services:
       - merchant_lnd
 
   selenium:
-    image: selenium/standalone-chrome:101.0
+    image: selenium/standalone-chrome:125.0
     extra_hosts:
       - "tests:172.23.0.18"
     expose:
@@ -149,7 +149,7 @@ services:
       - "bitcoin_datadir:/data"
 
   customer_lightningd:
-    image: btcpayserver/lightning:v24.02.2
+    image: btcpayserver/lightning:v24.05
     stop_signal: SIGKILL
     restart: unless-stopped
     environment:
@@ -177,8 +177,9 @@ services:
       - bitcoind
 
   merchant_lightningd:
-    image: btcpayserver/lightning:v24.02.2
+    image: btcpayserver/lightning:v24.05
     stop_signal: SIGKILL
+    restart: unless-stopped
     environment:
       EXPOSE_TCP: "true"
       LIGHTNINGD_CHAIN: "btc"
@@ -213,7 +214,7 @@ services:
       - "5432"
 
   merchant_lnd:
-    image: btcpayserver/lnd:v0.18.0-beta
+    image: btcpayserver/lnd:v0.18.1-beta
     restart: unless-stopped
     environment:
       LND_CHAIN: "btc"
@@ -250,7 +251,7 @@ services:
       - bitcoind
 
   customer_lnd:
-    image: btcpayserver/lnd:v0.18.0-beta
+    image: btcpayserver/lnd:v0.18.1-beta
     restart: unless-stopped
     environment:
       LND_CHAIN: "btc"

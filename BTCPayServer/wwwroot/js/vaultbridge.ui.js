@@ -23,14 +23,14 @@ var vaultui = (function () {
     }
 
     var VaultFeedbacks = {
-        vaultLoading: new VaultFeedback("?", "Checking BTCPay Server Vault is running...", "vault-loading"),
+        vaultLoading: new VaultFeedback("?", "Checking DCO Gateway Vault is running...", "vault-loading"),
         vaultDenied: new VaultFeedback("failed", "The user declined access to the vault.", "vault-denied"),
         vaultGranted: new VaultFeedback("ok", "Access to vault granted by owner.", "vault-granted"),
-        noVault: new VaultFeedback("failed", "BTCPay Server Vault does not seem to be running, you can download it on <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">Github</a>.", "no-vault"),
+        noVault: new VaultFeedback("failed", "DCO Gateway Vault does not seem to be running, you can download it on <a target=\"_blank\" href=\"https://github.com/DCOGateway/DCOGateway.Vault/releases/latest\">Github</a>.", "no-vault"),
         noWebsockets: new VaultFeedback("failed", "Web sockets are not supported by the browser.", "no-websocket"),
         errorWebsockets: new VaultFeedback("failed", "Error of the websocket while connecting to the backend.", "error-websocket"),
         bridgeConnected: new VaultFeedback("ok", "BTCPayServer successfully connected to the vault.", "bridge-connected"),
-        vaultNeedUpdate: new VaultFeedback("failed", "Your BTCPay Server Vault version is outdated. Please <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">download</a> the latest version.", "vault-outdated"),
+        vaultNeedUpdate: new VaultFeedback("failed", "Your DCO Gateway Vault version is outdated. Please <a target=\"_blank\" href=\"https://github.com/DCOGateway/DCOGateway.Vault/releases/latest\">download</a> the latest version.", "vault-outdated"),
         noDevice: new VaultFeedback("failed", "No device connected.", "no-device"),
         needInitialized: new VaultFeedback("failed", "The device has not been initialized.", "need-initialized"),
         fetchingDevice: new VaultFeedback("?", "Fetching device...", "fetching-device"),

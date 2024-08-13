@@ -126,7 +126,7 @@ namespace BTCPayServer.HostedServices
             {
                 var json = NBitcoin.JsonConverters.Serializer.ToString(notification);
                 var store = await _StoreRepository.FindStore(invoice.StoreId);
-                var storeName = store.StoreName ?? "BTCPay Server";
+                var storeName = store.StoreName ?? "DCO Gateway";
                 var emailBody = $"Store: {storeName}<br>" +
                                 $"Invoice ID: {notification.Data.Id}<br>" +
                                 $"Status: {notification.Data.Status}<br>" +

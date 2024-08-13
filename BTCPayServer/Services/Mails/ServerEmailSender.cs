@@ -24,7 +24,7 @@ namespace BTCPayServer.Services.Mails
         public override async Task<string> GetPrefixedSubject(string subject)
         {
             var settings = await SettingsRepository.GetSettingAsync<ServerSettings>();
-            var prefix = string.IsNullOrEmpty(settings?.ServerName) ? "BTCPay Server" : settings.ServerName;
+            var prefix = string.IsNullOrEmpty(settings?.ServerName) ? "DCO Gateway" : settings.ServerName;
             return $"{prefix}: {subject}";
         }
     }

@@ -78,7 +78,7 @@ window.BTCPayShopifyIntegrationModule = function () {
                 return response.json();
             }).catch(function () {
                 if (!backgroundCheck)
-                    alert("Could not initiate BTCPay Server payment method, try again later.");
+                    alert("Could not initiate DCO Gateway payment method, try again later.");
             })
     }
 

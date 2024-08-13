@@ -5,11 +5,11 @@ namespace BTCPayServer.Services;
 
 public enum ThemeExtension
 {
-    [Display(Name = "Does not extend a BTCPay Server theme, fully custom")]
+    [Display(Name = "Does not extend a DCO Gateway theme, fully custom")]
     Custom,
-    [Display(Name = "Extends the BTCPay Server Light theme")]
+    [Display(Name = "Extends the DCO Gateway Light theme")]
     Light,
-    [Display(Name = "Extends the BTCPay Server Dark theme")]
+    [Display(Name = "Extends the DCO Gateway Dark theme")]
     Dark
 }
 

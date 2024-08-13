@@ -48,7 +48,7 @@ namespace BTCPayServer.Services
         [Display(Name = "Non-admins can import Hot Wallets for their Store")]
         public bool AllowHotWalletRPCImportForAll { get; set; }
 
-        [Display(Name = "Check releases on GitHub and notify when new BTCPay Server version is available")]
+        [Display(Name = "Check releases on GitHub and notify when new DCO Gateway version is available")]
         public bool CheckForNewVersions { get; set; }
 
         [Display(Name = "Disable stores from using the server's email settings as backup")]

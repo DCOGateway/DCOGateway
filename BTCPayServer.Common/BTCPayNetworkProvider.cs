@@ -37,7 +37,7 @@ namespace BTCPayServer
 #if !ALTCOINS
             var onlyBTC = networksList.Count == 1 && networksList.First().IsBTC;
             if (!onlyBTC)
-                throw new ConfigException($"This build of BTCPay Server does not support altcoins. Configured networks: {string.Join(',', networksList.Select(n => n.CryptoCode).ToArray())}");
+                throw new ConfigException($"This build of DCO Gateway does not support altcoins. Configured networks: {string.Join(',', networksList.Select(n => n.CryptoCode).ToArray())}");
 #endif
             _NBXplorerNetworkProvider = nbxplorerNetworkProvider;
             NetworkType = nbxplorerNetworkProvider.NetworkType;

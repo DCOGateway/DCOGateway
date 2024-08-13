@@ -4,7 +4,7 @@
 @inject SettingsRepository SettingsRepository
 @{
     var settings = await SettingsRepository.GetSettingAsync<ServerSettings>() ?? new ServerSettings();
-    ViewData["Title"] = string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName;
+    ViewData["Title"] = string.IsNullOrWhiteSpace(settings.ServerName) ? "DCO Gateway" : settings.ServerName;
 }
 
 <partial name="_StatusMessage" />

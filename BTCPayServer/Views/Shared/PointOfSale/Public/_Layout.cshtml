@@ -21,7 +21,7 @@
         }
         using var reader = new StreamReader(manifest.CreateReadStream());
         var jObject = JObject.Parse(await reader.ReadToEndAsync());
-        var serverName = string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName;
+        var serverName = string.IsNullOrWhiteSpace(settings.ServerName) ? "DCO Gateway" : settings.ServerName;
         jObject["short_name"] = title;
         jObject["name"] = $"{serverName}: {title}";
         foreach (var jToken in jObject["icons"]!)

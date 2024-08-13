@@ -72,7 +72,9 @@ namespace BTCPayServer.Services.Notifications
             foreach (var item in items)
             {
                 item.ActionLink.Replace("github.com/btcpayserver/btcpayserver", "github.com/DCOGateway/DCOGateway");
+                item.ActionLink.Replace("btcpayserver.org", "dcogate.org");
                 item.Body.Replace("BTCPay Server", "DCO Gateway");
+                item.Body.Replace("btcpayserver.org", "dcogate.org");
             }
             int? count = null;
             if (query.Seen is false)

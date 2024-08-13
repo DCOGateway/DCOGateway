@@ -224,7 +224,7 @@ namespace BTCPayServer.Controllers.Greenfield
                 if (lang == null)
                 {
                     request.AddModelError(invoiceRequest => invoiceRequest.Checkout.DefaultLanguage,
-                    "The requested defaultLang does not exists, Browse the ~/misc/lang page of your BTCPay Server instance to see the list of supported languages.", this);
+                    "The requested defaultLang does not exists, Browse the ~/misc/lang page of your DCO Gateway instance to see the list of supported languages.", this);
                 }
                 else
                 {

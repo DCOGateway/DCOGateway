@@ -222,7 +222,7 @@ namespace BTCPayServer.Controllers
                         return View(model);
                     var settings = useCustomSMTP ? model.Settings : model.FallbackSettings;
                     using var client = await settings.CreateSmtpClient();
-                    var message = settings.CreateMailMessage(MailboxAddress.Parse(model.TestEmail), $"{store.StoreName}: Email test", "You received it, the BTCPay Server SMTP settings work.", false);
+                    var message = settings.CreateMailMessage(MailboxAddress.Parse(model.TestEmail), $"{store.StoreName}: Email test", "You received it, the DCO Gateway SMTP settings work.", false);
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
                     TempData[WellKnownTempData.SuccessMessage] = $"Email sent to {model.TestEmail}. Please verify you received it.";

@@ -347,7 +347,7 @@ namespace BTCPayServer.Controllers.Greenfield
         }
         protected JsonHttpException ErrorCryptoCodeNotFound()
         {
-            return new JsonHttpException(this.CreateAPIError(404, "unknown-cryptocode", "This crypto code isn't set up in this BTCPay Server instance"));
+            return new JsonHttpException(this.CreateAPIError(404, "unknown-cryptocode", "This crypto code isn't set up in this DCO Gateway instance"));
         }
         protected JsonHttpException ErrorShouldBeAdminForInternalNode()
         {

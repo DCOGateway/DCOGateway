@@ -285,7 +285,7 @@ namespace BTCPayServer.Controllers.Greenfield
         {
             network = _btcPayNetworkProvider.GetNetwork<BTCPayNetwork>(cryptoCode);
             if (network is null)
-                throw new JsonHttpException(this.CreateAPIError(404, "unknown-cryptocode", "This crypto code isn't set up in this BTCPay Server instance"));
+                throw new JsonHttpException(this.CreateAPIError(404, "unknown-cryptocode", "This crypto code isn't set up in this DCO Gateway instance"));
 
             wallet = _walletProvider.GetWallet(network);
             if (wallet is null)

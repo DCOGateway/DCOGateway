@@ -43,6 +43,14 @@ namespace BTCPayServer.Services.Notifications
                     Take = 5,
                     UserId = userId
                 });
+                foreach (var item in res.Items)
+                {
+                    item.ActionLink.Replace("btcpayserver.org", "dcogate.org");
+                    item.ActionLink.Replace("btcpayserver", "DCOGateway");
+                    item.Body.Replace("btcpayserver.org", "dcogate.org");
+                    item.Body.Replace("btcpayserver", "DCOGateway");
+                    item.Body.Replace("BTCPay Server", "DCO Gateway");
+                }
                 entry.Value = res;
                 return res;
             });

@@ -17,7 +17,7 @@ COPY BTCPayServer.Client/. BTCPayServer.Client/.
 COPY BTCPayServer.Abstractions/. BTCPayServer.Abstractions/.
 COPY BTCPayServer/. BTCPayServer/.
 COPY Build/Version.csproj Build/Version.csproj
-ARG CONFIGURATION_NAME=Release
+ARG CONFIGURATION_NAME=Altcoins-Release
 ARG GIT_COMMIT
 RUN cd BTCPayServer && dotnet publish -p:GitCommit=${GIT_COMMIT} --output /app/ --configuration ${CONFIGURATION_NAME}
 

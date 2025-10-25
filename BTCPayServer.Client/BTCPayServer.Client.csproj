@@ -3,9 +3,9 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>
         <LangVersion>10.0</LangVersion>
-        <Company>BTCPay Server</Company>
-        <Copyright>Copyright © BTCPay Server 2020</Copyright>
-        <Description>A client library for BTCPay Server Greenfield API</Description>
+        <Company>DCO Gateway</Company>
+        <Copyright>Copyright © DCO Gateway 2020</Copyright>
+        <Description>A client library for DCO Gateway Greenfield API</Description>
         <PackageIcon>icon.png</PackageIcon>
         <PackageTags>btcpay,btcpayserver</PackageTags>
         <PackageProjectUrl>https://github.com/btcpayserver/btcpayserver/tree/master/BTCPayServer.Client</PackageProjectUrl>

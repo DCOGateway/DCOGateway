@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -50,7 +50,7 @@ public abstract class HWIController : VaultController
             {
                 ui.ShowFeedback(FeedbackType.Failed,
                     ui.ViewLocalizer[
-                        "Your BTCPay Server Vault version is outdated. Please <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">download</a> the latest version."]);
+                        "Your DCO Gateway Vault version is outdated. Please <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">download</a> the latest version."]);
             }
 
             var gettingEntries = hwi.EnumerateEntriesAsync(cancellationToken);
@@ -73,7 +73,7 @@ public abstract class HWIController : VaultController
             if (deviceEntry.Model is null)
             {
                 ui.ShowFeedback(FeedbackType.Failed,
-                    ui.StringLocalizer["Unsupported hardware wallet, try to update BTCPay Server Vault"]);
+                    ui.StringLocalizer["Unsupported hardware wallet, try to update DCO Gateway Vault"]);
                 ui.ShowRetry();
                 return;
             }

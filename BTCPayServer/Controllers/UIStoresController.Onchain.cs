@@ -537,7 +537,7 @@ public partial class UIStoresController
                     var config = store.GetPaymentMethodConfig<DerivationSchemeSettings>(PaymentTypes.CHAIN.GetPaymentMethodId(network.CryptoCode), _handlers);
                     if (config?.IsHotWallet is not true)
                     {
-                        successMessage += " However, PayJoin will not work, as this isn't a <a href='https://docs.btcpayserver.org/HotWallet/' class='alert-link' target='_blank'>hot wallet</a>.";
+                        successMessage += " However, PayJoin will not work, as this isn't a <a href='https://docs.dcogate.org/HotWallet/' class='alert-link' target='_blank'>hot wallet</a>.";
                     }
                 }
 

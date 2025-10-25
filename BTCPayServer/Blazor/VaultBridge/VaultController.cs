@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using BTCPayServer.Blazor.VaultBridge.Elements;
 
@@ -13,7 +13,7 @@ public abstract class VaultController : IController
     {
         try
         {
-            ui.ShowFeedback(FeedbackType.Loading, ui.StringLocalizer["Checking BTCPay Server Vault is running..."]);
+            ui.ShowFeedback(FeedbackType.Loading, ui.StringLocalizer["Checking DCO Gateway Vault is running..."]);
             var client = new VaultClient(ui.JSRuntime, VaultUri);
             var res = await client.AskPermission(cancellationToken);
             var feedback = (status: res.HttpCode, browser: res.Browser) switch
@@ -23,11 +23,11 @@ public abstract class VaultController : IController
                     FeedbackType.Failed),
                 (_, "safari") => new Feedback(
                     ui.ViewLocalizer[
-                        "Safari doesn't support BTCPay Server Vault. Please use a different browser. (<a class=\"alert-link\" href=\"https://bugs.webkit.org/show_bug.cgi?id=171934\" target=\"_blank\" rel=\"noreferrer noopener\">More information</a>)"],
+                        "Safari doesn't support DCO Gateway Vault. Please use a different browser. (<a class=\"alert-link\" href=\"https://bugs.webkit.org/show_bug.cgi?id=171934\" target=\"_blank\" rel=\"noreferrer noopener\">More information</a>)"],
                     FeedbackType.Failed),
                 _ => new Feedback(
                     ui.ViewLocalizer[
-                        "BTCPay Server Vault does not seem to be running, you can download it on <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">Github</a>."],
+                        "DCO Gateway Vault does not seem to be running, you can download it on <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">Github</a>."],
                     FeedbackType.Failed),
             };
             ui.ShowFeedback(feedback);
@@ -36,7 +36,7 @@ public abstract class VaultController : IController
             {
                 if (res.HttpCode == 0 && res.Browser == "brave")
                     ui.AddWarning(ui.ViewLocalizer[
-                        "Brave supports BTCPay Server Vault, but you need to disable Brave Shields. (<a class=\"alert-link\" href=\"https://www.updateland.com/how-to-turn-off-brave-shields/\" target=\"_blank\" rel=\"noreferrer noopener\">More information</a>)"]);
+                        "Brave supports DCO Gateway Vault, but you need to disable Brave Shields. (<a class=\"alert-link\" href=\"https://www.updateland.com/how-to-turn-off-brave-shields/\" target=\"_blank\" rel=\"noreferrer noopener\">More information</a>)"]);
                 ui.ShowRetry();
                 return;
             }
@@ -47,7 +47,7 @@ public abstract class VaultController : IController
         {
             ui.ShowFeedback(new Feedback(
                 ui.ViewLocalizer[
-                    "BTCPay Server Vault does not seem to be running, you can download it on <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">Github</a>."],
+                    "DCO Gateway Vault does not seem to be running, you can download it on <a target=\"_blank\" href=\"https://github.com/btcpayserver/BTCPayServer.Vault/releases/latest\">Github</a>."],
                 FeedbackType.Failed));
             ui.ShowRetry();
         }

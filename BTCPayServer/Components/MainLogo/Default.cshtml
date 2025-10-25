@@ -6,11 +6,11 @@
 @if (Theme.LogoUrl is not null)
 {
 	var logoUrl = await UriResolver.Resolve(this.Context.Request.GetAbsoluteRootUri(), Theme.LogoUrl);
-	<img src="@logoUrl" alt="BTCPay Server" class="main-logo main-logo-custom @Model.CssClass" />
+	<img src="@logoUrl" alt="DCO Gateway" class="main-logo main-logo-custom @Model.CssClass" />
 }
 else
 {
-    <svg xmlns="http://www.w3.org/2000/svg" role="img" alt="BTCPay Server" class="main-logo main-logo-btcpay @Model.CssClass">
+    <svg xmlns="http://www.w3.org/2000/svg" role="img" alt="DCO Gateway" class="main-logo main-logo-btcpay @Model.CssClass">
         <use href="~/img/logo.svg#small" class="main-logo-btcpay--small"/>
         <use href="~/img/logo.svg#large" class="main-logo-btcpay--large"/>
     </svg>

@@ -84,7 +84,7 @@ public partial class UIStoresController
                     return View(model);
                 var clientSettings = (model.IsCustomSMTP ? model.Settings : settings.Fallback) ?? new();
                 using var client = await clientSettings.CreateSmtpClient();
-                var message = clientSettings.CreateMailMessage(MailboxAddress.Parse(model.TestEmail), $"{store.StoreName}: Email test", StringLocalizer["You received it, the BTCPay Server SMTP settings work."], false);
+                var message = clientSettings.CreateMailMessage(MailboxAddress.Parse(model.TestEmail), $"{store.StoreName}: Email test", StringLocalizer["You received it, the DCO Gateway SMTP settings work."], false);
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
                 TempData[WellKnownTempData.SuccessMessage] = StringLocalizer["Email sent to {0}. Please verify you received it.", model.TestEmail].Value;

@@ -261,7 +261,7 @@ namespace BTCPayServer.Hosting
                                                               $"If you have a phoenixd server: 'type=phoenixd;server=http://phoenixd:9740/;password=phoenixdpassword'" +
                                                               Environment.NewLine +
                                                               $"Error: {error}" + Environment.NewLine +
-                                                              "This service will not be exposed through BTCPay Server");
+                                                              "This service will not be exposed through DCO Gateway");
                             }
                             else
                             {

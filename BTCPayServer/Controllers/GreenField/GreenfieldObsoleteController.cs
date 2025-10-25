@@ -37,7 +37,7 @@ namespace BTCPayServer.Controllers.GreenField
         }
         private IActionResult Obsolete()
         {
-            return this.CreateAPIError(410, "unsupported-in-v2", "This route isn't supported by BTCPay Server 2.0 and newer. Please update your integration.");
+            return this.CreateAPIError(410, "unsupported-in-v2", "This route isn't supported by DCO Gateway 2.0 and newer. Please update your integration.");
         }
     }
 }

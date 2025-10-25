@@ -69,7 +69,7 @@
                     },
                     {
                         "name": "applicationIdentifier",
-                        "description": "If specified, BTCPay Server will check if there is an existing API key associated with the user that also has this application identifier, redirect host AND the permissions required match(takes selectiveStores and strict into account). `applicationIdentifier` is ignored if redirect is not specified.",
+                        "description": "If specified, DCO Gateway will check if there is an existing API key associated with the user that also has this application identifier, redirect host AND the permissions required match(takes selectiveStores and strict into account). `applicationIdentifier` is ignored if redirect is not specified.",
                         "in": "query",
                         "schema": {
                             "type": "string",

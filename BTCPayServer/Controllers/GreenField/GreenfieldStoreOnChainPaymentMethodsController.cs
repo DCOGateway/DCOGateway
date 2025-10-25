@@ -146,7 +146,7 @@ namespace BTCPayServer.Controllers.Greenfield
         private void AssertCryptoCodeWallet(PaymentMethodId paymentMethodId, out BTCPayNetwork network, out BTCPayWallet wallet)
         {
             if (!_handlers.TryGetValue(paymentMethodId, out var h) || h is not BitcoinLikePaymentHandler handler)
-                throw new JsonHttpException(this.CreateAPIError(404, "unknown-paymentMethodId", "This payment method id isn't set up in this BTCPay Server instance"));
+                throw new JsonHttpException(this.CreateAPIError(404, "unknown-paymentMethodId", "This payment method id isn't set up in this DCO Gateway instance"));
             network = handler.Network;
             wallet = _walletProvider.GetWallet(network);
             if (wallet is null)

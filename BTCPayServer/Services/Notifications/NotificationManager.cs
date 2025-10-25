@@ -65,6 +65,14 @@ namespace BTCPayServer.Services.Notifications
             var queryables = GetNotificationsQueryable(dbContext, query);
             var items = (await queryables.withPaging.ToListAsync()).Select(ToViewModel).Where(model => model != null).ToList();
             items = FilterNotifications(items, query);
+            foreach (var item in items)
+            {
+                item.ActionLink.Replace("btcpayserver.org", "dcogate.org");
+                item.ActionLink.Replace("btcpayserver", "DCOGateway");
+                item.Body.Replace("btcpayserver.org", "dcogate.org");
+                item.Body.Replace("btcpayserver", "DCOGateway");
+                item.Body.Replace("BTCPay Server", "DCO Gateway");
+            }
             int? count = null;
             if (query.Seen is false)
             {

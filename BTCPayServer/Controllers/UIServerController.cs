@@ -160,7 +160,7 @@ namespace BTCPayServer.Controllers
             };
 
             if (!vm.CanUseSSH)
-                TempData[WellKnownTempData.ErrorMessage] = StringLocalizer["Maintenance feature requires access to SSH properly configured in BTCPay Server configuration."].Value;
+                TempData[WellKnownTempData.ErrorMessage] = StringLocalizer["Maintenance feature requires access to SSH properly configured in DCO Gateway configuration."].Value;
             if (IPAddress.TryParse(vm.DNSDomain, out var unused))
                 vm.DNSDomain = null;
 
@@ -173,7 +173,7 @@ namespace BTCPayServer.Controllers
             vm.CanUseSSH = _sshState.CanUseSSH;
             if (command != "soft-restart" && !vm.CanUseSSH)
             {
-                TempData[WellKnownTempData.ErrorMessage] = StringLocalizer["Maintenance feature requires access to SSH properly configured in BTCPay Server configuration."].Value;
+                TempData[WellKnownTempData.ErrorMessage] = StringLocalizer["Maintenance feature requires access to SSH properly configured in DCO Gateway configuration."].Value;
                 return View(vm);
             }
             if (!ModelState.IsValid)
@@ -580,8 +580,8 @@ namespace BTCPayServer.Controllers
                         {
                             Severity = StatusMessageModel.StatusSeverity.Warning,
                             Html = "Your LND does not seem to allow seed backup.<br />" +
-                            "It's recommended, but not required, that you migrate as instructed by <a href=\"https://blog.btcpayserver.org/btcpay-lnd-migration\">our migration blog post</a>.<br />" +
-                            "You will need to close all of your channels, and migrate your funds as <a href=\"https://blog.btcpayserver.org/btcpay-lnd-migration\">we documented</a>."
+                            "It's recommended, but not required, that you migrate as instructed by <a href=\"https://blog.dcogate.org/btcpay-lnd-migration\">our migration blog post</a>.<br />" +
+                            "You will need to close all of your channels, and migrate your funds as <a href=\"https://blog.dcogate.org/btcpay-lnd-migration\">we documented</a>."
                         });
                     }
                     return View("LndSeedBackup", model);
@@ -919,7 +919,7 @@ namespace BTCPayServer.Controllers
                 return NotFound();
             return View("Confirm",
                 new ConfirmModel("Delete dynamic DNS service",
-                    $"Deleting the dynamic DNS service for <strong>{Html.Encode(hostname)}</strong> means your BTCPay Server will stop updating the associated DNS record periodically.", "Delete"));
+                    $"Deleting the dynamic DNS service for <strong>{Html.Encode(hostname)}</strong> means your DCO Gateway will stop updating the associated DNS record periodically.", "Delete"));
         }
 
         [HttpPost("server/services/dynamic-dns/{hostname}/delete")]
@@ -1054,7 +1054,7 @@ namespace BTCPayServer.Controllers
         [HttpGet("server/services/ssh/disable")]
         public IActionResult SSHServiceDisable()
         {
-            return View("Confirm", new ConfirmModel("Disable modification of SSH settings", "This action is permanent and will remove the ability to change the SSH settings via the BTCPay Server user interface.", "Disable"));
+            return View("Confirm", new ConfirmModel("Disable modification of SSH settings", "This action is permanent and will remove the ability to change the SSH settings via the DCO Gateway user interface.", "Disable"));
         }
 
         [HttpPost("server/services/ssh/disable")]
@@ -1063,7 +1063,7 @@ namespace BTCPayServer.Controllers
             var policies = await _SettingsRepository.GetSettingAsync<PoliciesSettings>() ?? new PoliciesSettings();
             policies.DisableSSHService = true;
             await _SettingsRepository.UpdateSetting(policies);
-            TempData[WellKnownTempData.SuccessMessage] = StringLocalizer["Changes to the SSH settings are now permanently disabled in the BTCPay Server user interface"].Value;
+            TempData[WellKnownTempData.SuccessMessage] = StringLocalizer["Changes to the SSH settings are now permanently disabled in the DCO Gateway user interface"].Value;
             return RedirectToAction(nameof(Services));
         }
 
@@ -1253,9 +1253,9 @@ namespace BTCPayServer.Controllers
                     if (!ModelState.IsValid)
                         return View(model);
                     var serverSettings = await _SettingsRepository.GetSettingAsync<ServerSettings>();
-                    var serverName = string.IsNullOrEmpty(serverSettings?.ServerName) ? "BTCPay Server" : serverSettings.ServerName;
+                    var serverName = string.IsNullOrEmpty(serverSettings?.ServerName) ? "DCO Gateway" : serverSettings.ServerName;
                     using (var client = await model.Settings.CreateSmtpClient())
-                    using (var message = model.Settings.CreateMailMessage(MailboxAddress.Parse(model.TestEmail), $"{serverName}: Email test", "You received it, the BTCPay Server SMTP settings work.", false))
+                    using (var message = model.Settings.CreateMailMessage(MailboxAddress.Parse(model.TestEmail), $"{serverName}: Email test", "You received it, the DCO Gateway SMTP settings work.", false))
                     {
                         await client.SendAsync(message);
                         await client.DisconnectAsync(true);

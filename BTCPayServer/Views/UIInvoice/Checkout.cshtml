@@ -231,7 +231,7 @@
         }
         <footer class="store-footer">
             <a v-if="srvModel.storeSupportUrl" class="mb-4" :href="srvModel.storeSupportUrl" v-t="'contact_us'" id="ContactLink"></a>
-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
+            <a class="store-powered-by" href="https://dcogate.org" target="_blank" rel="noreferrer noopener">
                 {{$t("powered_by")}} <partial name="_StoreFooterLogo" />
             </a>
             <select asp-for="DefaultLang" asp-items="@LangService.GetLanguageSelectListItems()" class="form-select" v-on:change="changeLanguage"></select>

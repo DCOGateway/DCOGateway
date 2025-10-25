@@ -85,7 +85,7 @@ namespace BTCPayServer.Hosting
 
             services.AddMemoryCache();
             services.AddDataProtection()
-                .SetApplicationName("BTCPay Server")
+                .SetApplicationName("DCO Gateway")
                 .PersistKeysToFileSystem(new DirectoryInfo(new DataDirectories().Configure(Configuration).DataDir));
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -122,7 +122,7 @@ namespace BTCPayServer.Hosting
             });
             services.AddFido2(options =>
                 {
-                    options.ServerName = "BTCPay Server";
+                    options.ServerName = "DCO Gateway";
                 })
                 .AddCachedMetadataService(config =>
                 {

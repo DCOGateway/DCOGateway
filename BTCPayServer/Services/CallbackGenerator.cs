@@ -79,7 +79,7 @@ namespace BTCPayServer.Services
             return LinkGenerator.GetUriByAction(nameof(UIAccountController.Login), "UIAccount", new { email = user.Email }, request.Scheme, request.Host, request.PathBase) ?? throw Bug();
         }
 
-        private Exception Bug([CallerMemberName] string? name = null) => new InvalidOperationException($"Error generating link for {name} (Report this bug to BTCPay Server github repository)");
+        private Exception Bug([CallerMemberName] string? name = null) => new InvalidOperationException($"Error generating link for {name} (Report this bug to DCO Gateway github repository)");
 
         public string WalletTransactionsLink(WalletId walletId, HttpRequest request)
         {

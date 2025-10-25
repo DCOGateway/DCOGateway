@@ -51,7 +51,7 @@
              aria-labelledby="LightningNodeType-@LightningNodeType.Internal">
             @if (Model.CanUseInternalNode)
             {
-                <p class="mb-4" text-translate="true">Using the BTCPay Server internal node for this store requires no further configuration. Click the save
+                <p class="mb-4" text-translate="true">Using the DCO Gateway internal node for this store requires no further configuration. Click the save
                     button below to start accepting Bitcoin through the Lightning Network.</p>
             }
             else
@@ -75,7 +75,7 @@
                 <span asp-validation-for="ConnectionString" class="text-danger"></span>
             </div>
             <vc:ui-extension-point location="ln-payment-method-setup-custom" model="@Model" />
-            <p class="mt-4 mb-2" text-translate="true">BTCPay Server currently supports:</p>
+            <p class="mt-4 mb-2" text-translate="true">DCO Gateway currently supports:</p>
             <div class="accordion" id="CustomNodeSupport">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="CustomNodeCLightningHeader">
@@ -226,7 +226,7 @@
                             </ul>
                             <p class="my-2" html-translate="true">The credentials and server address are shown as a <code>lndhub://</code> URL on the
                                 "Export/Backup" screen in BlueWallet.</p>
-                            <p html-translate="true">You can also use this LNDhub-URL as the connection string and BTCPay Server converts it into the expected
+                            <p html-translate="true">You can also use this LNDhub-URL as the connection string and DCO Gateway converts it into the expected
                                 <code>type=lndhub</code> connection string format:</p>
                             <ul class="mb-0">
                                 <li>

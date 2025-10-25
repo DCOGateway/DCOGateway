@@ -3,9 +3,9 @@
   <Import Project="../Build/Common.csproj" />
 
   <PropertyGroup>
-    <Company>BTCPay Server</Company>
-    <Copyright>Copyright © BTCPay Server 2020</Copyright>
-    <Description>A library for BTCPay Server plugin development</Description>
+    <Company>DCO Gateway</Company>
+    <Copyright>Copyright © DCO Gateway 2020</Copyright>
+    <Description>A library for DCO Gateway plugin development</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>btcpay,btcpayserver</PackageTags>
     <PackageProjectUrl>https://github.com/btcpayserver/btcpayserver/tree/master/BTCPayServer.Abstractions</PackageProjectUrl>

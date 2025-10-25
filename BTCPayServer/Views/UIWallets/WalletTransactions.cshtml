@@ -282,7 +282,7 @@
 </div>
 
 <p class="mt-4 mb-0">
-    @ViewLocalizer["If BTCPay Server shows you an invalid balance, {0}.<br />If some transactions appear in BTCPay Server, but are missing in another wallet, {1}.",
+    @ViewLocalizer["If DCO Gateway shows you an invalid balance, {0}.<br />If some transactions appear in DCO Gateway, but are missing in another wallet, {1}.",
         Html.ActionLink(StringLocalizer["rescan your wallet"], "WalletRescan", "UIWallets", new { walletId = Context.GetRouteValue("walletId") }),
-        new HtmlString($"<a href=\"https://docs.btcpayserver.org/FAQ/Wallet/#missing-payments-in-my-software-or-hardware-wallet\" target=\"_blank\" rel=\"noreferrer noopener\">{StringLocalizer["follow these instructions"]}</a>")]
+        new HtmlString($"<a href=\"https://docs.dcogate.org/FAQ/Wallet/#missing-payments-in-my-software-or-hardware-wallet\" target=\"_blank\" rel=\"noreferrer noopener\">{StringLocalizer["follow these instructions"]}</a>")]
 </p>

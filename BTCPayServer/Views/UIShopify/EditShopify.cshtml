@@ -12,7 +12,7 @@
 		<vc:icon symbol="close" />
 	</button>
 	<h5 class="alert-heading" text-translate="true">Important notice</h5>
-	<p class="my-2 mb-5">This Shopify integration has been discontinued by Shopify and will no longer be supported after <strong>August 31, 2025</strong>. If you completed your BTCPay Server-Shopify setup before <strong>December 31, 2024</strong>, you may continue using it until August 31, 2025. However, we recommend transitioning to Shopify V2 for continued functionality. All new users have to use Shopify V2. <a href="https://docs.btcpayserver.org/ShopifyV2/" rel="noreferrer noopener" class="alert-link" text-translate="true">Refer to this guide to get started with Shopify V2</a></p>
+	<p class="my-2 mb-5">This Shopify integration has been discontinued by Shopify and will no longer be supported after <strong>August 31, 2025</strong>. If you completed your DCO Gateway-Shopify setup before <strong>December 31, 2024</strong>, you may continue using it until August 31, 2025. However, we recommend transitioning to Shopify V2 for continued functionality. All new users have to use Shopify V2. <a href="https://docs.dcogate.org/ShopifyV2/" rel="noreferrer noopener" class="alert-link" text-translate="true">Refer to this guide to get started with Shopify V2</a></p>
 </div>
 
 
@@ -20,7 +20,7 @@
     <h2 class="my-1">
         @ViewData["Title"]
         <small>
-            <a href="https://docs.btcpayserver.org/Shopify" target="_blank" rel="noreferrer noopener" title="@StringLocalizer["More information..."]">
+            <a href="https://docs.dcogate.org/Shopify" target="_blank" rel="noreferrer noopener" title="@StringLocalizer["More information..."]">
                 <vc:icon symbol="info" />
             </a>
         </small>
@@ -31,7 +31,7 @@
 
 <div class="row">
     <div class="col-xxl-constrain col-xl-8">
-        <p text-translate="true">Connect BTCPay Server to your Shopify checkout experience to accept Bitcoin.</p>
+        <p text-translate="true">Connect DCO Gateway to your Shopify checkout experience to accept Bitcoin.</p>
 
         @if (!ViewContext.ModelState.IsValid)
         {
@@ -74,7 +74,7 @@
                     <h5 class="alert-heading" text-translate="true">In Shopify, please do the following …</h5> 
                     <ul>
                         <li>
-                            Add a payment method at <a href="@shopifyUrl/admin/settings/payments" class="alert-link fw-bold" target="_blank" rel="noreferrer noopener">Settings &gt; Payments &gt; Manual Payment Methods</a> with the name <strong>Bitcoin with BTCPay Server</strong>
+                            Add a payment method at <a href="@shopifyUrl/admin/settings/payments" class="alert-link fw-bold" target="_blank" rel="noreferrer noopener">Settings &gt; Payments &gt; Manual Payment Methods</a> with the name <strong>Bitcoin with DCO Gateway</strong>
                         </li>
                         <li>
                             Paste this script at <a href="@shopifyUrl/admin/settings/checkout#PolarisTextField1" class="fw-bold alert-link" target="_blank" rel="noreferrer noopener">Settings &gt; Checkout &gt; Order Processing &gt; Additional Scripts</a>:

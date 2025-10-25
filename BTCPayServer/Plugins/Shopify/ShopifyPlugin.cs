@@ -10,7 +10,7 @@ namespace BTCPayServer.Plugins.Shopify
     {
         public override string Identifier => "BTCPayServer.Plugins.Shopify";
         public override string Name => "Shopify";
-        public override string Description => "Allows you to integrate BTCPay Server as a payment option in Shopify.";
+        public override string Description => "Allows you to integrate DCO Gateway as a payment option in Shopify.";
 
         public override void Execute(IServiceCollection applicationBuilder)
         {

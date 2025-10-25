@@ -23,7 +23,7 @@ namespace BTCPayServer.Services.Notifications.Blobs
                 vm.Identifier = notification.Identifier;
                 vm.Type = notification.NotificationType;
                 vm.Body = StringLocalizer["New version {0} released!", notification.Version];
-                vm.ActionLink = $"https://github.com/btcpayserver/btcpayserver/releases/tag/v{notification.Version}";
+                vm.ActionLink = $"https://github.com/DCOGateway/DCOGateway/releases/tag/v{notification.Version}";
             }
         }
         public NewVersionNotification()

@@ -17,13 +17,13 @@
             <div class="form-group">
                 <label asp-for="DNSDomain" class="form-label"></label>
                 <input asp-for="DNSDomain" class="form-control" disabled="@(Model.CanUseSSH ? null : "disabled")" />
-                <div class="form-text">@ViewLocalizer["You can change the domain name of your server by following {0}.", new HtmlString($"<a href=\"https://docs.btcpayserver.org/FAQ/Deployment/#how-to-change-your-btcpay-server-domain-name\" target=\"_blank\" rel=\"noreferrer noopener\">{StringLocalizer["this guide"]}</a>")]</div>
+                <div class="form-text">@ViewLocalizer["You can change the domain name of your server by following {0}.", new HtmlString($"<a href=\"https://docs.dcogate.org/FAQ/Deployment/#how-to-change-your-btcpay-server-domain-name\" target=\"_blank\" rel=\"noreferrer noopener\">{StringLocalizer["this guide"]}</a>")]</div>
                 <span asp-validation-for="DNSDomain" class="text-danger"></span>
             </div>
             <button name="command" type="submit" class="btn btn-secondary" value="changedomain" title="@StringLocalizer["Change domain"]" disabled="@(Model.CanUseSSH ? null : "disabled")">Change Domain</button>
 
             <h4 class="mt-5 mb-2" text-translate="true">Restart</h4>
-            <p text-translate="true">Restart BTCPay Server and related services.</p>
+            <p text-translate="true">Restart DCO Gateway and related services.</p>
             <div class="form-group">
                 <div class="input-group">
                     <button name="command" type="submit" class="btn btn-secondary" value="restart" disabled="@(Model.CanUseSSH ? null : "disabled")" text-translate="true">Restart</button>
@@ -39,7 +39,7 @@
             </div>
 
             <h4 class="mt-5 mb-2" text-translate="true">Update</h4>
-            <p text-translate="true">Update to the latest version of BTCPay Server.</p>
+            <p text-translate="true">Update to the latest version of DCO Gateway.</p>
             <div class="form-group">
                 <div class="input-group">
                     <button name="command" type="submit" class="btn btn-primary" value="update" disabled="@(Model.CanUseSSH ? null : "disabled")" text-translate="true">Update</button>

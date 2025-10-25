@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using BTCPayServer.Abstractions.Models;
 using BTCPayServer.Client;
@@ -17,6 +18,7 @@ using BTCPayServer.Services;
 using BTCPayServer.Services.Invoices;
 using BTCPayServer.Services.Rates;
 using BTCPayServer.Services.Wallets;
+using BTCPayServer.Tests.PMO;
 using BTCPayServer.Views.Manage;
 using BTCPayServer.Views.Server;
 using BTCPayServer.Views.Stores;
@@ -29,6 +31,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Playwright;
 using static Microsoft.Playwright.Assertions;
 using NBitcoin;
+using NBitcoin.DataEncoders;
 using NBitcoin.Payment;
 using NBXplorer;
 using NBXplorer.Models;
@@ -388,12 +391,16 @@ namespace BTCPayServer.Tests
             Assert.DoesNotContain("You need to configure email settings before this feature works", await s.Page.ContentAsync());
 
             await s.Page.ClickAsync("#CreateEmailRule");
-            await s.Page.Locator("#Trigger").SelectOptionAsync(new[] { "InvoicePaymentSettled" });
-            await s.Page.FillAsync("#To", "test@gmail.com");
-            await s.Page.ClickAsync("#CustomerEmail");
-            await s.Page.FillAsync("#Subject", "Thanks!");
-            await s.Page.Locator(".note-editable").FillAsync("Your invoice is settled");
-            await s.Page.ClickAsync("#SaveEmailRules");
+            var pmo = new EmailRulePMO(s);
+            await pmo.Fill(new()
+                {
+                    Trigger = "WH-InvoicePaymentSettled",
+                    To = "test@gmail.com",
+                    CustomerEmail = true,
+                    Subject = "Thanks!",
+                    Body = "Your invoice is settled"
+                });
+
             await s.FindAlertMessage();
             // we now have a rule
             Assert.DoesNotContain("There are no rules yet.", await s.Page.ContentAsync());
@@ -1402,34 +1409,55 @@ namespace BTCPayServer.Tests
         [Fact]
         public async Task CanSetupEmailRules()
         {
-            await using var s = CreatePlaywrightTester();
+            await using var s = CreatePlaywrightTester(newDb: true);
             await s.StartAsync();
             await s.RegisterNewUser(true);
-            await s.CreateNewStore();
+            var (storeName, _) = await s.CreateNewStore();
 
             await s.GoToStore(StoreNavPages.Emails);
             await s.Page.ClickAsync("#ConfigureEmailRules");
             Assert.Contains("There are no rules yet.", await s.Page.ContentAsync());
             Assert.Contains("You need to configure email settings before this feature works", await s.Page.ContentAsync());
 
+            await s.Page.ClickAsync(".configure-email");
+
+            var mailPMO = new ConfigureEmailPMO(s);
+            await mailPMO.FillMailPit(new()
+            {
+                From = "store@store.com",
+                Login = "store@store.com",
+                Password = "password"
+            });
+
+            await s.GoToStore(StoreNavPages.Emails);
+            await s.Page.ClickAsync("#ConfigureEmailRules");
+
+            var pmo = new EmailRulePMO(s);
             await s.Page.ClickAsync("#CreateEmailRule");
-            await s.Page.SelectOptionAsync("#Trigger", "InvoiceCreated");
-            await s.Page.FillAsync("#To", "invoicecreated@gmail.com");
-            await s.Page.ClickAsync("#CustomerEmail");
-            await s.Page.ClickAsync("#SaveEmailRules");
+
+            await pmo.Fill(new() {
+                Trigger = "WH-InvoiceCreated",
+                To = "invoicecreated@gmail.com",
+                Subject = "Invoice Created in {Invoice.Currency}!",
+                Body = "Invoice has been created in {Invoice.Currency} for {Invoice.Price}!",
+                CustomerEmail = true
+            });
 
             await s.FindAlertMessage();
-            Assert.DoesNotContain("There are no rules yet.", await s.Page.ContentAsync());
-            Assert.Contains("invoicecreated@gmail.com", await s.Page.ContentAsync());
-            Assert.Contains("Invoice {Invoice.Id} created", await s.Page.ContentAsync());
-            Assert.Contains("Yes", await s.Page.ContentAsync());
+            var page = await s.Page.ContentAsync();
+            Assert.DoesNotContain("There are no rules yet.", page);
+            Assert.Contains("invoicecreated@gmail.com", page);
+            Assert.Contains("Invoice Created in {Invoice.Currency}!", page);
+            Assert.Contains("Yes", page);
 
             await s.Page.ClickAsync("#CreateEmailRule");
-            await s.Page.SelectOptionAsync("#Trigger", "PaymentRequestStatusChanged");
-            await s.Page.FillAsync("#To", "statuschanged@gmail.com");
-            await s.Page.FillAsync("#Subject", "Status changed!");
-            await s.Page.Locator(".note-editable").FillAsync("Your Payment Request Status is Changed");
-            await s.Page.ClickAsync("#SaveEmailRules");
+
+            await pmo.Fill(new() {
+                Trigger = "WH-PaymentRequestStatusChanged",
+                To = "statuschanged@gmail.com",
+                Subject = "Status changed!",
+                Body = "Your Payment Request Status is Changed"
+            });
 
             await s.FindAlertMessage();
             Assert.Contains("statuschanged@gmail.com", await s.Page.ContentAsync());
@@ -1439,14 +1467,23 @@ namespace BTCPayServer.Tests
             Assert.True(await editButtons.CountAsync() >= 2);
             await editButtons.Nth(1).ClickAsync();
 
-            await s.Page.Locator("#To").ClearAsync();
-            await s.Page.FillAsync("#To", "changedagain@gmail.com");
-            await s.Page.ClickAsync("#SaveEmailRules");
+            await pmo.Fill(new() {
+                To = "changedagain@gmail.com"
+            });
 
             await s.FindAlertMessage();
             Assert.Contains("changedagain@gmail.com", await s.Page.ContentAsync());
             Assert.DoesNotContain("statuschanged@gmail.com", await s.Page.ContentAsync());
 
+            var rulesUrl = s.Page.Url;
+
+            await s.AddDerivationScheme();
+            await s.GoToInvoices();
+            var sent = await s.Server.WaitForEvent<EmailSentEvent>(() => s.CreateInvoice(amount: 10m, currency: "USD"));
+            var message = await s.Server.AssertHasEmail(sent);
+            Assert.Equal("Invoice has been created in USD for 10!", message.Text);
+
+            await s.GoToUrl(rulesUrl);
             var deleteLinks = s.Page.GetByRole(AriaRole.Link, new() { Name = "Remove" });
             Assert.Equal(2, await deleteLinks.CountAsync());
 
@@ -1464,6 +1501,24 @@ namespace BTCPayServer.Tests
 
             await s.FindAlertMessage();
             Assert.Contains("There are no rules yet.", await s.Page.ContentAsync());
+
+            await s.Page.ClickAsync("#CreateEmailRule");
+
+            await pmo.Fill(new() {
+                Trigger = "WH-InvoiceCreated",
+                To = "invoicecreated@gmail.com",
+                Subject = "Invoice Created in {Invoice.Currency} for {Store.Name}!",
+                Body = "Invoice has been created in {Invoice.Currency} for {Invoice.Price}!",
+                CustomerEmail = true,
+                Condition = "$ ?(@.Invoice.Metadata.buyerEmail == \"john@test.com\")"
+            });
+
+            await s.GoToInvoices();
+            sent = await s.Server.WaitForEvent<EmailSentEvent>(() => s.CreateInvoice(amount: 10m, currency: "USD", refundEmail: "john@test.com"));
+            message = await s.Server.AssertHasEmail(sent);
+            Assert.Equal("Invoice Created in USD for " + storeName + "!", message.Subject);
+            Assert.Equal("Invoice has been created in USD for 10!", message.Text);
+            Assert.Equal("john@test.com", message.To[0].Address);
         }
 
         [Fact]
@@ -2002,6 +2057,174 @@ namespace BTCPayServer.Tests
                 foreach (var p in permissions)
                     Assert.DoesNotContain(p + "<", source);
             }
+        }
+
+        [Fact]
+        public async Task CanUseAwaitProgressForInProgressPayout()
+        {
+            await using var s = CreatePlaywrightTester();
+            await s.StartAsync();
+            await s.RegisterNewUser(true);
+            await s.CreateNewStore();
+            await s.GenerateWallet(isHotWallet: true);
+            await s.FundStoreWallet(denomination: 50.0m);
+
+            await s.GoToStore(s.StoreId, StoreNavPages.PayoutProcessors);
+            await s.Page.ClickAsync("#Configure-BTC-CHAIN");
+            await s.Page.SetCheckedAsync("#ProcessNewPayoutsInstantly", true);
+            await s.ClickPagePrimary();
+
+            await s.GoToStore(s.StoreId, StoreNavPages.PullPayments);
+            await s.ClickPagePrimary();
+            await s.Page.FillAsync("#Name", "PP1");
+            await s.Page.FillAsync("#Amount", "99.0");
+            await s.Page.SetCheckedAsync("#AutoApproveClaims", true);
+            await s.ClickPagePrimary();
+
+            await s.Page.ClickAsync("text=View");
+            var newPage = await s.Page.Context.WaitForPageAsync();
+
+            var address = await s.Server.ExplorerNode.GetNewAddressAsync();
+            await newPage.FillAsync("#Destination", address.ToString());
+            await newPage.PressAsync("#Destination", "Enter");
+
+            await s.GoToStore(s.StoreId, StoreNavPages.Payouts);
+            await s.Page.ClickAsync("#InProgress-view");
+
+            // Wait for the payment processor to process the payment
+            await TestUtils.EventuallyAsync(async () =>
+            {
+                await s.Page.ReloadAsync();
+                var massActionSelect = s.Page.Locator(".mass-action-select-all[data-payout-state='InProgress']");
+                await Expect(massActionSelect).ToBeVisibleAsync();
+            });
+
+            await s.Page.ClickAsync(".mass-action-select-all[data-payout-state='InProgress']");
+            await s.Page.ClickAsync("#InProgress-mark-awaiting-payment");
+            await s.Page.ClickAsync("#AwaitingPayment-view");
+
+            var pageContent = await s.Page.ContentAsync();
+            Assert.Contains("PP1", pageContent);
+        }
+
+        [Fact]
+        public async Task CanUseWebhooks()
+        {
+            await using var s = CreatePlaywrightTester();
+            await s.StartAsync();
+            await s.RegisterNewUser(true);
+            await s.CreateNewStore();
+            await s.GoToStore(StoreNavPages.Webhooks);
+
+            TestLogs.LogInformation("Let's create two webhooks");
+            for (var i = 0; i < 2; i++)
+            {
+                await s.ClickPagePrimary();
+                await s.Page.FillAsync("[name='PayloadUrl']", $"http://127.0.0.1/callback{i}");
+                await s.Page.SelectOptionAsync("#Everything", "false");
+                await s.Page.ClickAsync("#InvoiceCreated");
+                await s.Page.ClickAsync("#InvoiceProcessing");
+                await s.ClickPagePrimary();
+            }
+
+            TestLogs.LogInformation("Let's delete one of them");
+            var deleteLinks = await s.Page.Locator("a:has-text('Delete')").AllAsync();
+            Assert.Equal(2, deleteLinks.Count);
+            await deleteLinks[0].ClickAsync();
+            await s.Page.FillAsync("#ConfirmInput", "DELETE");
+            await s.Page.ClickAsync("#ConfirmContinue");
+            deleteLinks = await s.Page.Locator("a:has-text('Delete')").AllAsync();
+            Assert.Single(deleteLinks);
+            await s.FindAlertMessage();
+
+            TestLogs.LogInformation("Let's try to update one of them");
+            await s.Page.ClickAsync("text=Modify");
+
+            using var server = new FakeServer();
+            await server.Start();
+            await s.Page.FillAsync("[name='PayloadUrl']", server.ServerUri.AbsoluteUri);
+            await s.Page.FillAsync("[name='Secret']", "HelloWorld");
+            await s.Page.ClickAsync("[name='update']");
+            await s.FindAlertMessage();
+            await s.Page.ClickAsync("text=Modify");
+
+            // Check which events are selected
+            var pageContent = await s.Page.ContentAsync();
+            Assert.Contains("value=\"InvoiceProcessing\" checked", pageContent);
+            Assert.Contains("value=\"InvoiceCreated\" checked", pageContent);
+            Assert.DoesNotContain("value=\"InvoiceReceivedPayment\" checked", pageContent);
+
+            await s.Page.ClickAsync("[name='update']");
+            await s.FindAlertMessage();
+            pageContent = await s.Page.ContentAsync();
+            Assert.Contains(server.ServerUri.AbsoluteUri, pageContent);
+
+            TestLogs.LogInformation("Let's see if we can generate an event");
+            await s.GoToStore();
+            await s.AddDerivationScheme();
+            await s.CreateInvoice();
+            var request = await server.GetNextRequest();
+            var headers = request.Request.Headers;
+            var actualSig = headers["BTCPay-Sig"].First();
+            var bytes = await request.Request.Body.ReadBytesAsync((int)headers.ContentLength.Value);
+            var expectedSig =
+                $"sha256={Encoders.Hex.EncodeData(NBitcoin.Crypto.Hashes.HMACSHA256(Encoding.UTF8.GetBytes("HelloWorld"), bytes))}";
+            Assert.Equal(expectedSig, actualSig);
+            request.Response.StatusCode = 200;
+            server.Done();
+
+            TestLogs.LogInformation("Let's make a failed event");
+            var invoiceId = await s.CreateInvoice();
+            request = await server.GetNextRequest();
+            request.Response.StatusCode = 404;
+            server.Done();
+
+            // The delivery is done asynchronously, so small wait here
+            await Task.Delay(500);
+            await s.GoToStore();
+            await s.Page.ClickAsync("#StoreNav-Webhooks");
+            await s.Page.ClickAsync("text=Modify");
+            var redeliverElements = await s.Page.Locator("button.redeliver").AllAsync();
+
+            // One worked, one failed
+            await s.Page.Locator(".icon-cross").WaitForAsync();
+            await s.Page.Locator(".icon-checkmark").WaitForAsync();
+            await redeliverElements[0].ClickAsync();
+
+            await s.FindAlertMessage();
+            request = await server.GetNextRequest();
+            request.Response.StatusCode = 404;
+            server.Done();
+
+            TestLogs.LogInformation("Can we browse the json content?");
+            await CanBrowseContentAsync(s);
+
+            await s.GoToInvoices();
+            await s.Page.ClickAsync($"text={invoiceId}");
+            await CanBrowseContentAsync(s);
+            var redeliverElement = s.Page.Locator("button.redeliver").First;
+            await redeliverElement.ClickAsync();
+
+            await s.FindAlertMessage();
+            request = await server.GetNextRequest();
+            request.Response.StatusCode = 404;
+            server.Done();
+
+            TestLogs.LogInformation("Let's see if we can delete store with some webhooks inside");
+            await s.GoToStore();
+            await s.Page.ClickAsync("#DeleteStore");
+            await s.Page.FillAsync("#ConfirmInput", "DELETE");
+            await s.Page.ClickAsync("#ConfirmContinue");
+            await s.FindAlertMessage();
+        }
+
+        private static async Task CanBrowseContentAsync(PlaywrightTester s)
+        {
+            await s.Page.ClickAsync(".delivery-content");
+            var newPage = await s.Page.Context.WaitForPageAsync();
+            var bodyText = await newPage.Locator("body").TextContentAsync();
+            JObject.Parse(bodyText);
+            await newPage.CloseAsync();
         }
 
     }

@@ -1,20 +1,16 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BTCPayServer.Abstractions.Constants;
 using BTCPayServer.Abstractions.Extensions;
-using BTCPayServer.Abstractions.Models;
 using BTCPayServer.Client;
 using BTCPayServer.Data;
 using BTCPayServer.Plugins.Emails.Views;
-using BTCPayServer.Services.Mails;
-using Dapper;
+using BTCPayServer.Plugins.Emails.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
-using Npgsql;
 
 namespace BTCPayServer.Plugins.Emails.Controllers;
 
@@ -22,136 +18,67 @@ namespace BTCPayServer.Plugins.Emails.Controllers;
 [Route("stores/{storeId}/emails/rules")]
 [Authorize(AuthenticationSchemes = AuthenticationSchemes.Cookie)]
 [Authorize(Policy = Policies.CanViewStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
-[AutoValidateAntiforgeryToken]
 public class UIStoreEmailRulesController(
     EmailSenderFactory emailSenderFactory,
     LinkGenerator linkGenerator,
     ApplicationDbContextFactory dbContextFactory,
-    IEnumerable<EmailTriggerViewModel> triggers,
-    IStringLocalizer stringLocalizer) : Controller
+    EmailTriggerViewModels triggers,
+    IStringLocalizer stringLocalizer) : UIEmailRuleControllerBase(dbContextFactory, stringLocalizer, emailSenderFactory)
 {
-    public IStringLocalizer StringLocalizer { get; set; } = stringLocalizer;
     [HttpGet("")]
-    public async Task<IActionResult> StoreEmailRulesList(string storeId)
-    {
-        await using var ctx = dbContextFactory.CreateContext();
-        var store = HttpContext.GetStoreData();
-        var configured = await emailSenderFactory.IsComplete(store.Id);
-        if (!configured && !TempData.HasStatusMessage())
-        {
-            TempData.SetStatusMessageModel(new StatusMessageModel
-            {
-                Severity = StatusMessageModel.StatusSeverity.Warning,
-                Html = "You need to configure email settings before this feature works." +
-                       $" <a class='alert-link configure-email' href='{linkGenerator.GetStoreEmailSettingsLink(storeId, Request.GetRequestBaseUrl())}'>Configure store email settings</a>."
-            });
-        }
+    public Task<IActionResult> StoreEmailRulesList(string storeId)
+        => EmailRulesListCore(CreateContext(storeId));
 
-        var rules = await ctx.EmailRules.GetRules(storeId).ToListAsync();
-        return View("StoreEmailRulesList", rules.Select(r => new StoreEmailRuleViewModel(r, triggers)).ToList());
-    }
+    private EmailsRuleControllerContext CreateContext(string storeId)
+        => new()
+        {
+            StoreId = storeId,
+            EmailSettingsLink = linkGenerator.GetStoreEmailSettingsLink(storeId, Request.GetRequestBaseUrl()),
+            Rules = (ctx) => ctx.EmailRules.GetRules(storeId).ToListAsync(),
+            Triggers = triggers.GetViewModels().Where(t => !t.ServerTrigger).ToList(),
+            ModifyViewModel = (vm) =>
+            {
+                vm.ShowCustomerEmailColumn = true;
+            },
+            GetRule = (ctx, ruleId) => ctx.EmailRules.GetRule(storeId, ruleId),
+            RedirectToRuleList = (redirectUrl) => GoToStoreEmailRulesList(storeId, redirectUrl)
+        };
 
     [HttpGet("create")]
     [Authorize(Policy = Policies.CanModifyStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
-    public IActionResult StoreEmailRulesCreate(string storeId)
-    {
-        return View("StoreEmailRulesManage", new StoreEmailRuleViewModel(null, triggers));
-    }
+    public IActionResult StoreEmailRulesCreate(
+        string storeId,
+        string offeringId = null,
+        string trigger = null,
+        string condition = null,
+        string to = null,
+        string redirectUrl = null)
+        => EmailRulesCreateCore(CreateContext(storeId), offeringId, trigger, condition, to, redirectUrl);
 
     [HttpPost("create")]
     [Authorize(Policy = Policies.CanModifyStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
-    public async Task<IActionResult> StoreEmailRulesCreate(string storeId, StoreEmailRuleViewModel model)
+    public Task<IActionResult> StoreEmailRulesCreate(string storeId, StoreEmailRuleViewModel model)
+        => EmailRulesCreateCore(CreateContext(storeId), model);
+
+    private IActionResult GoToStoreEmailRulesList(string storeId, string redirectUrl)
     {
-        await ValidateCondition(model);
-        if (!ModelState.IsValid)
-            return StoreEmailRulesCreate(storeId);
-
-        await using var ctx = dbContextFactory.CreateContext();
-        var c = new EmailRuleData()
-        {
-            StoreId = storeId,
-            Trigger = model.Trigger,
-            Body = model.Body,
-            Subject = model.Subject,
-            Condition = string.IsNullOrWhiteSpace(model.Condition) ? null : model.Condition,
-            To = model.ToAsArray()
-        };
-        c.SetBTCPayAdditionalData(model.AdditionalData);
-        ctx.EmailRules.Add(c);
-        await ctx.SaveChangesAsync();
-
-        this.TempData.SetStatusSuccess(StringLocalizer["Email rule successfully created"]);
+        if (redirectUrl != null)
+            return LocalRedirect(redirectUrl);
         return RedirectToAction(nameof(StoreEmailRulesList), new { storeId });
     }
 
     [HttpGet("{ruleId}/edit")]
     [Authorize(Policy = Policies.CanModifyStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
-    public async Task<IActionResult> StoreEmailRulesEdit(string storeId, long ruleId)
-    {
-        await using var ctx = dbContextFactory.CreateContext();
-        var r = await ctx.EmailRules.GetRule(storeId, ruleId);
-        if (r is null)
-            return NotFound();
-        return View("StoreEmailRulesManage", new StoreEmailRuleViewModel(r, triggers));
-    }
+    public Task<IActionResult> StoreEmailRulesEdit(string storeId, long ruleId, string redirectUrl = null)
+        => EmailRulesEditCore(CreateContext(storeId), ruleId, redirectUrl);
 
     [HttpPost("{ruleId}/edit")]
     [Authorize(Policy = Policies.CanModifyStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
-    public async Task<IActionResult> StoreEmailRulesEdit(string storeId, long ruleId, StoreEmailRuleViewModel model)
-    {
-        await ValidateCondition(model);
-        if (!ModelState.IsValid)
-            return await StoreEmailRulesEdit(storeId, ruleId);
-
-        await using var ctx = dbContextFactory.CreateContext();
-        var rule = await ctx.EmailRules.GetRule(storeId, ruleId);
-        if (rule is null) return NotFound();
-
-        rule.Trigger = model.Trigger;
-        rule.SetBTCPayAdditionalData(model.AdditionalData);
-        rule.To = model.ToAsArray();
-        rule.Subject = model.Subject;
-        rule.Condition = model.Condition;
-        rule.Body = model.Body;
-        await ctx.SaveChangesAsync();
-
-        this.TempData.SetStatusSuccess(StringLocalizer["Email rule successfully updated"]);
-        return RedirectToAction(nameof(StoreEmailRulesList), new { storeId });
-    }
-
-    private async Task ValidateCondition(StoreEmailRuleViewModel model)
-    {
-        model.Condition = model.Condition?.Trim() ?? "";
-        if (model.Condition.Length == 0)
-            model.Condition = null;
-        else
-        {
-            await using var ctx = dbContextFactory.CreateContext();
-            try
-            {
-                ctx.Database
-                    .GetDbConnection()
-                    .ExecuteScalar<bool>("SELECT jsonb_path_exists('{}'::JSONB, @path::jsonpath)", new { path = model.Condition });
-            }
-            catch(PostgresException ex)
-            {
-                ModelState.AddModelError(nameof(model.Condition), $"Invalid condition ({ex.MessageText})");
-            }
-        }
-    }
+    public Task<IActionResult> StoreEmailRulesEdit(string storeId, long ruleId, StoreEmailRuleViewModel model)
+        => EmailRulesEditCore(CreateContext(storeId), ruleId, model);
 
     [HttpPost("{ruleId}/delete")]
     [Authorize(Policy = Policies.CanModifyStoreSettings, AuthenticationSchemes = AuthenticationSchemes.Cookie)]
-    public async Task<IActionResult> StoreEmailRulesDelete(string storeId, long ruleId)
-    {
-        await using var ctx = dbContextFactory.CreateContext();
-        var r = await ctx.EmailRules.GetRule(storeId, ruleId);
-        if (r is not null)
-        {
-            ctx.EmailRules.Remove(r);
-            await ctx.SaveChangesAsync();
-            this.TempData.SetStatusSuccess(StringLocalizer["Email rule successfully deleted"]);
-        }
-        return RedirectToAction(nameof(StoreEmailRulesList), new { storeId });
-    }
+    public Task<IActionResult> StoreEmailRulesDelete(string storeId, long ruleId, string redirectUrl = null)
+        => EmailRulesDeleteCore(CreateContext(storeId), ruleId, redirectUrl);
 }

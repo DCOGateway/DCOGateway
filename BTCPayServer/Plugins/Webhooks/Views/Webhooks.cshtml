@@ -1,13 +1,12 @@
-@using BTCPayServer.Abstractions.Models
 @using BTCPayServer.Client
 @model WebhooksViewModel
 @{
-    ViewData.SetActivePage(StoreNavPages.Webhooks, StringLocalizer["Webhooks"], Context.GetStoreData().Id);
+    ViewData.SetLayoutModel(new LayoutModel(nameof(StoreNavPages.Webhooks), StringLocalizer["Webhooks"]).SetCategory(WellKnownCategories.Store));
 }
 
 <div class="sticky-header">
     <h2>@ViewData["Title"]</h2>
-	<a id="page-primary" asp-action="NewWebhook" class="btn btn-primary" role="button" asp-route-storeId="@Context.GetRouteValue("storeId")" permission="@Policies.CanModifyStoreSettings">
+	<a id="page-primary" text-translate="true" asp-action="NewWebhook" class="btn btn-primary" role="button" asp-route-storeId="@Context.GetRouteValue("storeId")" permission="@Policies.CanModifyStoreSettings">
         Create Webhook
     </a>
 </div>
@@ -53,7 +52,7 @@
                                 <td class="d-block text-break">@wh.Url</td>
                                 <td class="actions-col text-md-nowrap" permission="@Policies.CanModifyStoreSettings">
                                     <a asp-action="ModifyWebhook" asp-route-storeId="@Context.GetRouteValue("storeId")" asp-route-webhookId="@wh.Id" text-translate="true">Modify</a> -
-                                    <a asp-action="DeleteWebhook" asp-route-storeId="@Context.GetRouteValue("storeId")" asp-route-webhookId="@wh.Id" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-confirm-input="DELETE" text-translate="true">Delete</a>
+                                    <a asp-action="DeleteWebhook" asp-route-storeId="@Context.GetRouteValue("storeId")" asp-route-webhookId="@wh.Id" data-bs-toggle="modal" data-bs-target="#ConfirmModal" data-confirm-input="@StringLocalizer["Delete"]" text-translate="true">Delete</a>
                                 </td>
                             </tr>
                         }

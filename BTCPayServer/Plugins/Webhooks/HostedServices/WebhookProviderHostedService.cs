@@ -1,12 +1,11 @@
 #nullable  enable
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BTCPayServer.Client.Models;
 using BTCPayServer.Data;
 using BTCPayServer.HostedServices;
-using BTCPayServer.Plugins.Emails;
+using BTCPayServer.Plugins.Emails.HostedServices;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using StoreData = BTCPayServer.Data.StoreData;
@@ -37,9 +36,7 @@ public class WebhookProviderHostedService(
 
     protected override async Task ProcessEvent(object evt, CancellationToken cancellationToken)
     {
-        var (provider, webhookEvent) = webhookTriggerProviders
-            .Select(o => (o, o.GetWebhookEvent(evt)))
-            .FirstOrDefault(o => o.Item2 is not null);
+        var (provider, webhookEvent) = await GetWebhookEvent(evt);
         if (webhookEvent is null || provider is null)
             return;
 
@@ -65,8 +62,19 @@ public class WebhookProviderHostedService(
         }
     }
 
+    private async Task<(WebhookTriggerProvider?, StoreWebhookEvent?)> GetWebhookEvent(object evt)
+    {
+        foreach (var provider in webhookTriggerProviders)
+        {
+            var webhookEvent = await provider.GetWebhookEventAsync(evt);
+            if (webhookEvent is not null)
+                return (provider, webhookEvent);
+        }
+        return (null, null);
+    }
+
     private StoreWebhookEvent Clone(StoreWebhookEvent webhookEvent)
-    => (StoreWebhookEvent)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(webhookEvent), webhookEvent.GetType(), WebhookSender.DefaultSerializerSettings)!;
+    => (StoreWebhookEvent)JsonConvert.DeserializeObject(JsonConvert.SerializeObject(webhookEvent, WebhookSender.DefaultSerializerSettings), webhookEvent.GetType(), WebhookSender.DefaultSerializerSettings)!;
 
     private async Task<StoreData?> GetStore(StoreWebhookEvent webhookEvent)
     {

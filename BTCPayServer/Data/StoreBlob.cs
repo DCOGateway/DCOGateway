@@ -7,8 +7,8 @@ using BTCPayServer.Client.JsonConverters;
 using BTCPayServer.Client.Models;
 using BTCPayServer.JsonConverters;
 using BTCPayServer.Payments;
+using BTCPayServer.Plugins.Emails.Services;
 using BTCPayServer.Rating;
-using BTCPayServer.Services.Mails;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -176,6 +176,7 @@ namespace BTCPayServer.Data
 
         public List<PaymentMethodCriteria> PaymentMethodCriteria { get; set; }
         public string HtmlTitle { get; set; }
+        public string CheckoutText { get; set; }
 
         public bool AutoDetectLanguage { get; set; }
 
@@ -301,6 +302,8 @@ namespace BTCPayServer.Data
                     _additionalTrackedRates = null;
             }
         }
+
+        public bool NoActiveUser { get; set; }
 
         private string NormalizeCurrency(string v) =>
             v is null ? null :

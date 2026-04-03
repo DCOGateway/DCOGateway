@@ -75,7 +75,7 @@ namespace BTCPayServer.Controllers
             WalletId walletId, WalletPSBTViewModel vm, string command = null)
         {
             var network = NetworkProvider.GetNetwork<BTCPayNetwork>(walletId.CryptoCode);
-            var psbt = await vm.GetPSBT(network.NBitcoinNetwork, ModelState);
+            var psbt = await vm.GetPSBT(network?.NBitcoinNetwork, ModelState);
 
             if (psbt is null || vm.InvalidPSBT)
             {
@@ -130,6 +130,8 @@ namespace BTCPayServer.Controllers
             WalletId walletId, string returnUrl)
         {
             var network = NetworkProvider.GetNetwork<BTCPayNetwork>(walletId.CryptoCode);
+            if (network is null)
+                return NotFound();
             var referer = HttpContext.Request.GetTypedHeaders().Referer?.AbsolutePath;
             var vm = new WalletPSBTViewModel
             {
@@ -152,6 +154,8 @@ namespace BTCPayServer.Controllers
             WalletPSBTViewModel vm, string command)
         {
             var network = NetworkProvider.GetNetwork<BTCPayNetwork>(walletId.CryptoCode);
+            if (network is null)
+                return NotFound();
             vm.CryptoCode = network.CryptoCode;
 
             var derivationSchemeSettings = GetDerivationSchemeSettings(walletId);
@@ -441,6 +445,8 @@ namespace BTCPayServer.Controllers
             WalletId walletId, WalletPSBTViewModel vm, string command, CancellationToken cancellationToken = default)
         {
             var network = NetworkProvider.GetNetwork<BTCPayNetwork>(walletId.CryptoCode);
+            if (network is null)
+                return NotFound();
             PSBT psbt = await vm.GetPSBT(network.NBitcoinNetwork, ModelState);
             if (vm.InvalidPSBT || psbt is null)
             {
@@ -570,6 +576,12 @@ namespace BTCPayServer.Controllers
                             TempData[WellKnownTempData.SuccessMessage] = StringLocalizer["Transaction broadcasted successfully ({0})", transaction.GetHash()].Value;
                         }
 
+                        if (!string.IsNullOrEmpty(vm.SigningContext?.Comment))
+                        {
+                            var txObjId = new WalletObjectId(walletId, WalletObjectData.Types.Tx, transaction.GetHash().ToString());
+                            await WalletRepository.SetWalletObjectComment(txObjId, vm.SigningContext.Comment);
+                        }
+
                         if (vm.SigningContext.PendingTransactionId is not null)
                         {
                             await _pendingTransactionService.Broadcasted(GetPendingTxId(walletId, vm.SigningContext.PendingTransactionId));
@@ -608,12 +620,12 @@ namespace BTCPayServer.Controllers
             WalletId walletId, WalletPSBTCombineViewModel vm)
         {
             var network = NetworkProvider.GetNetwork<BTCPayNetwork>(walletId.CryptoCode);
-            var psbt = await vm.GetPSBT(network.NBitcoinNetwork, ModelState);
+            var psbt = await vm.GetPSBT(network?.NBitcoinNetwork, ModelState);
             if (psbt == null)
             {
                 return View(vm);
             }
-            var sourcePSBT = vm.GetSourcePSBT(network.NBitcoinNetwork, ModelState);
+            var sourcePSBT = vm.GetSourcePSBT(network?.NBitcoinNetwork, ModelState);
             if (sourcePSBT is null)
             {
                 return View(vm);

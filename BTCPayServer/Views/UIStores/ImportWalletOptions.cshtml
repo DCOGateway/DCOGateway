@@ -4,9 +4,8 @@
 
 @inject BTCPayNetworkProvider BTCPayNetworkProvider
 @{
-	Layout = "_LayoutWalletSetup";
-	var title = StringLocalizer["Import {0} Wallet", Model.CryptoCode];
-	ViewData.SetActivePage(StoreNavPages.OnchainSettings, title, $"{Context.GetStoreData().Id}-{Model.CryptoCode}");
+	Layout = "_LayoutWalletSetup.cshtml";
+    ViewData.SetTitle(StringLocalizer["Import {0} Wallet", Model.CryptoCode]);
 }
 
 @section Navbar {

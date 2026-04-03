@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using BTCPayServer.Services.Labels;
 
 namespace BTCPayServer.Models.WalletViewModels
 {
@@ -70,6 +69,10 @@ namespace BTCPayServer.Models.WalletViewModels
         public string BackUrl { get; set; }
         public string ReturnUrl { get; set; }
         public bool IsMultiSigOnServer { get; set; }
+
+        [Display(Name = "Transaction Comment")]
+        [MaxLength(200)]
+        public string Comment { get; set; }
 
         public class InputSelectionOption
         {

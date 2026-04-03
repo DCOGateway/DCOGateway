@@ -1,7 +1,6 @@
-﻿#nullable  enable
+﻿#nullable enable
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using BTCPayServer.Abstractions.Models;
 using BTCPayServer.Client.Models;
@@ -28,6 +27,8 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
         services.AddSingleton<WebhookSender>();
         services.AddSingleton<IHostedService, WebhookSender>(o => o.GetRequiredService<WebhookSender>());
         services.AddScheduledTask<CleanupWebhookDeliveriesTask>(TimeSpan.FromHours(6.0));
+        services.AddScheduledTask<DbPeriodicTask>(TimeSpan.FromHours(1.0));
+
         services.AddHttpClient(WebhookSender.OnionNamedClient)
             .ConfigurePrimaryHttpMessageHandler<Socks5HttpClientHandler>();
         services.AddHttpClient(WebhookSender.LoopbackNamedClient)
@@ -36,8 +37,8 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
                 ServerCertificateCustomValidationCallback =
                     HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             });
-        var userAgent = new System.Net.Http.Headers.ProductInfoHeaderValue("BTCPayServer", BTCPayServerEnvironment.GetInformationalVersion());
-        foreach (var clientName in WebhookSender.AllClients.Concat(new[] { BitpayIPNSender.NamedClient }))
+        var userAgent = BTCPayServerEnvironment.GetUserAgentHeaderValue();
+        foreach (var clientName in WebhookSender.AllClients)
         {
             services.AddHttpClient(clientName)
                 .ConfigureHttpClient(client =>
@@ -53,7 +54,7 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
         AddPendingTransactionWebhooks(services);
     }
 
-     private static void AddPendingTransactionWebhooks(IServiceCollection services)
+    private static void AddPendingTransactionWebhooks(IServiceCollection services)
     {
         services.AddWebhookTriggerProvider<PendingTransactionTriggerProvider>();
         var pendingTransactionsPlaceholders = new List<EmailTriggerViewModel.PlaceHolder>()
@@ -65,40 +66,53 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
             new("{PendingTransaction.SignaturesNeeded}", "The number of signatures needed"),
             new("{PendingTransaction.SignaturesTotal}", "The total number of signatures"),
             new("{PendingTransaction.Link}", "The link to the wallet transaction list")
-        }.AddStoresPlaceHolders();
+        };
 
         var pendingTransactionTriggers = new List<EmailTriggerViewModel>()
         {
             new()
             {
-                Type = PendingTransactionTriggerProvider.PendingTransactionCreated,
+                Trigger = PendingTransactionTriggerProvider.PendingTransactionCreated,
                 Description = "Pending Transaction - Created",
-                SubjectExample = "Pending Transaction {PendingTransaction.TrimmedId} Created",
-                BodyExample = "Review the transaction {PendingTransaction.Id} and sign it on: {PendingTransaction.Link}",
+                DefaultEmail = new()
+                {
+                    Subject = "Pending Transaction {PendingTransaction.TrimmedId} Created",
+                    Body = "Review the transaction {PendingTransaction.Id} and sign it on: {PendingTransaction.Link}"
+                },
                 PlaceHolders = pendingTransactionsPlaceholders
             },
             new()
             {
-                Type = PendingTransactionTriggerProvider.PendingTransactionSignatureCollected,
+                Trigger = PendingTransactionTriggerProvider.PendingTransactionSignatureCollected,
                 Description = "Pending Transaction - Signature Collected",
-                SubjectExample = "Signature Collected for Pending Transaction {PendingTransaction.TrimmedId}",
-                BodyExample = "So far {PendingTransaction.SignaturesCollected} signatures collected out of {PendingTransaction.SignaturesNeeded} signatures needed. ",
+                DefaultEmail = new()
+                {
+                    Subject = "Signature Collected for Pending Transaction {PendingTransaction.TrimmedId}",
+                    Body =
+                        "So far {PendingTransaction.SignaturesCollected} signatures collected out of {PendingTransaction.SignaturesNeeded} signatures needed. "
+                },
                 PlaceHolders = pendingTransactionsPlaceholders
             },
             new()
             {
-                Type = PendingTransactionTriggerProvider.PendingTransactionBroadcast,
+                Trigger = PendingTransactionTriggerProvider.PendingTransactionBroadcast,
                 Description = "Pending Transaction - Broadcast",
-                SubjectExample = "Transaction {PendingTransaction.TrimmedId} has been Broadcast",
-                BodyExample = "Transaction is visible in mempool on: https://mempool.space/tx/{PendingTransaction.Id}. ",
+                DefaultEmail = new()
+                {
+                    Subject = "Transaction {PendingTransaction.TrimmedId} has been Broadcast",
+                    Body = "Transaction is visible in mempool on: https://mempool.space/tx/{PendingTransaction.Id}. "
+                },
                 PlaceHolders = pendingTransactionsPlaceholders
             },
             new()
             {
-                Type = PendingTransactionTriggerProvider.PendingTransactionCancelled,
+                Trigger = PendingTransactionTriggerProvider.PendingTransactionCancelled,
                 Description = "Pending Transaction - Cancelled",
-                SubjectExample = "Pending Transaction {PendingTransaction.TrimmedId} Cancelled",
-                BodyExample = "Transaction {PendingTransaction.Id} is cancelled and signatures are no longer being collected. ",
+                DefaultEmail = new()
+                {
+                    Subject = "Pending Transaction {PendingTransaction.TrimmedId} Cancelled",
+                    Body = "Transaction {PendingTransaction.Id} is cancelled and signatures are no longer being collected. "
+                },
                 PlaceHolders = pendingTransactionsPlaceholders
             }
         };
@@ -122,54 +136,69 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
             new("{PaymentRequest.ReferenceId}", "The reference id of the payment request"),
             new("{PaymentRequest.Status}", "The status of the payment request"),
             new("{PaymentRequest.FormResponse}*", "The form response associated with the payment request")
-        }.AddStoresPlaceHolders();
+        };
 
         var paymentRequestTriggers = new List<EmailTriggerViewModel>()
         {
             new()
             {
-                Type = WebhookEventType.PaymentRequestCreated,
+                Trigger = WebhookEventType.PaymentRequestCreated,
                 Description = "Payment Request - Created",
-                SubjectExample = "Payment Request {PaymentRequest.Id} created",
-                BodyExample = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) created.",
-                PlaceHolders = paymentRequestPlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Payment Request {PaymentRequest.Id} created",
+                    Body = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) created.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = paymentRequestPlaceholders
             },
             new()
             {
-                Type = WebhookEventType.PaymentRequestUpdated,
+                Trigger = WebhookEventType.PaymentRequestUpdated,
                 Description = "Payment Request - Updated",
-                SubjectExample = "Payment Request {PaymentRequest.Id} updated",
-                BodyExample = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) updated.",
-                PlaceHolders = paymentRequestPlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Payment Request {PaymentRequest.Id} updated",
+                    Body = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) updated.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = paymentRequestPlaceholders
             },
             new()
             {
-                Type = WebhookEventType.PaymentRequestArchived,
+                Trigger = WebhookEventType.PaymentRequestArchived,
                 Description = "Payment Request - Archived",
-                SubjectExample = "Payment Request {PaymentRequest.Id} archived",
-                BodyExample = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) archived.",
-                PlaceHolders = paymentRequestPlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Payment Request {PaymentRequest.Id} archived",
+                    Body = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) archived.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = paymentRequestPlaceholders
             },
             new()
             {
-                Type = WebhookEventType.PaymentRequestStatusChanged,
+                Trigger = WebhookEventType.PaymentRequestStatusChanged,
                 Description = "Payment Request - Status Changed",
-                SubjectExample = "Payment Request {PaymentRequest.Id} status changed",
-                BodyExample = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) status changed to {PaymentRequest.Status}.",
-                PlaceHolders = paymentRequestPlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Payment Request {PaymentRequest.Id} status changed",
+                    Body = "Payment Request {PaymentRequest.Id} ({PaymentRequest.Title}) status changed to {PaymentRequest.Status}.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = paymentRequestPlaceholders
             },
             new()
             {
-                Type = WebhookEventType.PaymentRequestCompleted,
+                Trigger = WebhookEventType.PaymentRequestCompleted,
                 Description = "Payment Request - Completed",
-                SubjectExample = "Payment Request {PaymentRequest.Title} {PaymentRequest.ReferenceId} Completed",
-                BodyExample = "The total of {PaymentRequest.Amount} {PaymentRequest.Currency} has been received and Payment Request {PaymentRequest.Id} is completed.\nReview the payment request: {PaymentRequest.Link}",
-                PlaceHolders = paymentRequestPlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Payment Request {PaymentRequest.Title} {PaymentRequest.ReferenceId} Completed",
+                    Body = "The total of {PaymentRequest.Amount} {PaymentRequest.Currency} has been received and Payment Request {PaymentRequest.Id} is completed.\nReview the payment request: {PaymentRequest.Link}",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = paymentRequestPlaceholders
             }
         };
         services.AddWebhookTriggerViewModels(paymentRequestTriggers);
@@ -185,31 +214,40 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
             new("{Payout.Destination}", "The destination of the payout"),
             new("{Payout.State}", "The current state of the payout"),
             new("{Payout.Metadata}*", "The metadata associated with the payout")
-        }.AddStoresPlaceHolders();
+        };
         var payoutTriggers = new List<EmailTriggerViewModel>()
         {
             new()
             {
-                Type = WebhookEventType.PayoutCreated,
+                Trigger = WebhookEventType.PayoutCreated,
                 Description = "Payout - Created",
-                SubjectExample = "Payout {Payout.Id} created",
-                BodyExample = "Payout {Payout.Id} (Pull Payment Id: {Payout.PullPaymentId}) created.",
+                DefaultEmail = new()
+                {
+                    Subject = "Payout {Payout.Id} created",
+                    Body = "Payout {Payout.Id} (Pull Payment Id: {Payout.PullPaymentId}) created."
+                },
                 PlaceHolders = payoutPlaceholders
             },
             new()
             {
-                Type = WebhookEventType.PayoutApproved,
+                Trigger = WebhookEventType.PayoutApproved,
                 Description = "Payout - Approved",
-                SubjectExample = "Payout {Payout.Id} approved",
-                BodyExample = "Payout {Payout.Id} (Pull Payment Id: {Payout.PullPaymentId}) approved.",
+                DefaultEmail = new()
+                {
+                    Subject = "Payout {Payout.Id} approved",
+                    Body = "Payout {Payout.Id} (Pull Payment Id: {Payout.PullPaymentId}) approved."
+                },
                 PlaceHolders = payoutPlaceholders
             },
             new()
             {
-                Type = WebhookEventType.PayoutUpdated,
+                Trigger = WebhookEventType.PayoutUpdated,
                 Description = "Payout - Updated",
-                SubjectExample = "Payout {Payout.Id} updated",
-                BodyExample = "Payout {Payout.Id} (Pull Payment Id: {Payout.PullPaymentId}) updated.",
+                DefaultEmail = new()
+                {
+                    Subject = "Payout {Payout.Id} updated",
+                    Body = "Payout {Payout.Id} (Pull Payment Id: {Payout.PullPaymentId}) updated."
+                },
                 PlaceHolders = payoutPlaceholders
             }
         };
@@ -220,100 +258,117 @@ public class WebhooksPlugin : BaseBTCPayServerPlugin
     private static void AddInvoiceWebhooks(IServiceCollection services)
     {
         services.AddWebhookTriggerProvider<InvoiceTriggerProvider>();
-        var invoicePlaceholders = new List<EmailTriggerViewModel.PlaceHolder>()
-        {
-            new("{Invoice.Id}", "The id of the invoice"),
-            new("{Invoice.StoreId}", "The id of the store"),
-            new("{Invoice.Price}", "The price of the invoice"),
-            new("{Invoice.Currency}", "The currency of the invoice"),
-            new("{Invoice.Status}", "The current status of the invoice"),
-            new("{Invoice.Link}", "The backend link to the invoice"),
-            new("{Invoice.AdditionalStatus}", "Additional status information of the invoice"),
-            new("{Invoice.OrderId}", "The order id associated with the invoice"),
-            new("{Invoice.Metadata}*", "The metadata associated with the invoice")
-        }.AddStoresPlaceHolders();
+        var invoicePlaceholders = InvoiceTriggerProvider.GetInvoicePlaceholders();
         var emailTriggers = new List<EmailTriggerViewModel>()
         {
             new()
             {
-                Type = WebhookEventType.InvoiceCreated,
+                Trigger = WebhookEventType.InvoiceCreated,
                 Description = "Invoice - Created",
-                SubjectExample = "Invoice {Invoice.Id} created",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) created.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} created",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) created.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoiceReceivedPayment,
+                Trigger = WebhookEventType.InvoiceReceivedPayment,
                 Description = "Invoice - Received Payment",
-                SubjectExample = "Invoice {Invoice.Id} received payment",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) received payment.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} received payment",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) received payment.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoiceProcessing,
+                Trigger = WebhookEventType.InvoiceProcessing,
                 Description = "Invoice - Is Processing",
-                SubjectExample = "Invoice {Invoice.Id} processing",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) is processing.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} processing",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) is processing.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoiceExpired,
+                Trigger = WebhookEventType.InvoiceExpired,
                 Description = "Invoice - Expired",
-                SubjectExample = "Invoice {Invoice.Id} expired",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) expired.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} expired",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) expired.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoiceSettled,
+                Trigger = WebhookEventType.InvoiceSettled,
                 Description = "Invoice - Is Settled",
-                SubjectExample = "Invoice {Invoice.Id} settled",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) is settled.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} settled",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) is settled.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoiceInvalid,
+                Trigger = WebhookEventType.InvoiceInvalid,
                 Description = "Invoice - Became Invalid",
-                SubjectExample = "Invoice {Invoice.Id} invalid",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) invalid.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} invalid",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) invalid.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoicePaymentSettled,
+                Trigger = WebhookEventType.InvoicePaymentSettled,
                 Description = "Invoice - Payment Settled",
-                SubjectExample = "Invoice {Invoice.Id} payment settled",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) payment settled.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} payment settled",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) payment settled.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             },
             new()
             {
-                Type = WebhookEventType.InvoiceExpiredPaidPartial,
+                Trigger = WebhookEventType.InvoiceExpiredPaidPartial,
                 Description = "Invoice - Expired Paid Partial",
-                SubjectExample = "Invoice {Invoice.Id} expired with partial payment",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) expired with partial payment. \nPlease review and take appropriate action: {Invoice.Link}",
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} expired with partial payment",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) expired with partial payment. \nPlease review and take appropriate action: {Invoice.Link}",
+                    CanIncludeCustomerEmail = true
+                },
                 PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+
             },
             new()
             {
-                Type = WebhookEventType.InvoicePaidAfterExpiration,
+                Trigger = WebhookEventType.InvoicePaidAfterExpiration,
                 Description = "Invoice - Expired Paid Late",
-                SubjectExample = "Invoice {Invoice.Id} paid after expiration",
-                BodyExample = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) paid after expiration.",
-                PlaceHolders = invoicePlaceholders,
-                CanIncludeCustomerEmail = true
+                DefaultEmail = new()
+                {
+                    Subject = "Invoice {Invoice.Id} paid after expiration",
+                    Body = "Invoice {Invoice.Id} (Order Id: {Invoice.OrderId}) paid after expiration.",
+                    CanIncludeCustomerEmail = true
+                },
+                PlaceHolders = invoicePlaceholders
             }
         };
         services.AddWebhookTriggerViewModels(emailTriggers);

@@ -48,7 +48,7 @@ public class PullPaymentsTests(ITestOutputHelper helper) : UnitTestBase(helper)
         await s.Server.EnsureChannelsSetup();
         await s.RegisterNewUser(true);
         await s.CreateNewStore();
-        await s.GenerateWallet("BTC", "", true, true);
+        await s.GenerateWallet("BTC", "", true);
 
         await s.Server.ExplorerNode.GenerateAsync(1);
         await s.FundStoreWallet(denomination: 50.0m);
@@ -155,7 +155,7 @@ public class PullPaymentsTests(ITestOutputHelper helper) : UnitTestBase(helper)
         //offline/external payout test
 
         await s.CreateNewStore();
-        await s.GenerateWallet("BTC", "", true, true);
+        await s.GenerateWallet("BTC", "", true);
         await s.GoToStore(s.StoreId, StoreNavPages.PullPayments);
 
         await s.ClickPagePrimary();
@@ -214,7 +214,7 @@ public class PullPaymentsTests(ITestOutputHelper helper) : UnitTestBase(helper)
         await s.AddLightningNode();
 
         //Currently an onchain wallet is required to use the Lightning payouts feature…
-        await s.GenerateWallet("BTC", "", true, true);
+        await s.GenerateWallet("BTC", "", true);
         await s.GoToStore(newStore.storeId, StoreNavPages.PullPayments);
         await s.ClickPagePrimary();
 
@@ -537,7 +537,7 @@ public class PullPaymentsTests(ITestOutputHelper helper) : UnitTestBase(helper)
             Amount = 0.5m,
             Currency = "BTC",
         }, controller.HttpContext.GetStoreData(), controller.Url.Link(null, null)!, [PullPaymentHostedService.GetInternalTag(pp.Id)]);
-        await client.MarkInvoiceStatus(user.StoreId, invoice.Id, new() { Status = InvoiceStatus.Settled });
+        await client.MarkInvoiceStatus(invoice.Id, new() { Status = InvoiceStatus.Settled });
 
         await TestUtils.EventuallyAsync(async () =>
         {
@@ -685,12 +685,9 @@ public class PullPaymentsTests(ITestOutputHelper helper) : UnitTestBase(helper)
         });
         Assert.Equal(TimeSpan.FromDays(31.0), test2.BOLT11Expiration);
 
-        TestLogs.LogInformation("Can't archive without knowing the walletId");
-        var ex = await AssertEx.AssertApiError("missing-permission", async () => await client.ArchivePullPayment("lol", result.Id));
-        Assert.Equal("btcpay.store.canarchivepullpayments", ((GreenfieldPermissionAPIError)ex.APIError).MissingPermission);
         TestLogs.LogInformation("Can't archive without permission");
-        await AssertEx.AssertApiError("unauthenticated", async () => await unauthenticated.ArchivePullPayment(storeId, result.Id));
-        await client.ArchivePullPayment(storeId, result.Id);
+        await AssertEx.AssertApiError("unauthenticated", async () => await unauthenticated.ArchivePullPayment(result.Id));
+        await client.ArchivePullPayment(result.Id);
         result = await unauthenticated.GetPullPayment(result.Id);
         Assert.Equal(TimeSpan.FromDays(30.0), result.BOLT11Expiration);
         Assert.True(result.Archived);
@@ -1021,7 +1018,7 @@ public class PullPaymentsTests(ITestOutputHelper helper) : UnitTestBase(helper)
         await s.StartAsync();
         await s.RegisterNewUser(true);
         await s.CreateNewStore();
-        await s.GenerateWallet("BTC", "", true, true);
+        await s.GenerateWallet("BTC", "", true);
         await s.Server.ExplorerNode.GenerateAsync(1);
         await s.FundStoreWallet(denomination: 50.0m);
 
